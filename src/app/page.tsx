@@ -1,65 +1,183 @@
+"use client";
+// Cache invalidation re-compile trigger
+
+import { useState, useEffect } from "react";
+import useSWR from "swr";
+import { MovieGroup, AppConfig, Showing } from "@/types/signage";
+// Import dynamically so mapped icon strings work
+import * as LucideIcons from "lucide-react";
 import Image from "next/image";
+import MovieCard from "@/components/signage/MovieCard";
 
 export default function Home() {
+  const [movieGroups, setMovieGroups] = useState<MovieGroup[]>([]);
+  const [config, setConfig] = useState<AppConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [timeStr, setTimeStr] = useState("00:00 AM");
+
+  const updateClock = () => {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    setTimeStr(`${hours}:${minutes} ${ampm}`);
+  };
+
+  const isToday = (dateString: string, override: string) => {
+    const date = new Date(dateString);
+    let today = new Date();
+    
+    if (override) {
+       // Parse custom YYYY-MM-DD
+       const parts = override.split('-');
+       if(parts.length === 3) {
+          today = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+       }
+    }
+
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const fetchData = async () => {
+    try {
+      // Fetch both configurations and showings together
+      const [cfgRes, apiRes] = await Promise.all([
+        fetch("/api/config"),
+        fetch("/api/showings")
+      ]);
+      
+      const cfg: AppConfig = await cfgRes.json();
+      const data = await apiRes.json();
+      
+      setConfig(cfg);
+      const sessions = Array.isArray(data) ? data : data.sessions || [];
+
+      // Optional override logic
+      const targetDateOverride = cfg.dateOverride || "";
+
+      // Only show matched date sessions
+      const todaysSessions = sessions.filter((s: Showing) => {
+        // If there's an override date, we only enforce the date string match, we don't care if the end time is past.
+        // If it's literally today, restrict to future end times.
+        if (targetDateOverride) {
+            return isToday(s.FeatureStartTime, targetDateOverride);
+        }
+        return isToday(s.FeatureStartTime, "") && new Date(s.FeatureEndTime) > new Date();
+      });
+
+      // Group by Movie
+      const groups = new Map<number, MovieGroup>();
+
+      todaysSessions.forEach((s: Showing) => {
+        // apply session custom badges
+        const sessionCustomBadges = cfg.sessionBadges && cfg.sessionBadges[s.Id] ? cfg.sessionBadges[s.Id] : [];
+        s.ShowingBadges = [...(s.ShowingBadges || []), ...sessionCustomBadges];
+
+        if (!groups.has(s.FilmId)) {
+          // Clean the title by extracting trailing parenthesis info if present
+          let baseTitle = s.Title;
+          let extractedMeta = null;
+          const parenIndex = baseTitle.indexOf(" (");
+          if (parenIndex > -1) {
+            const closingParen = baseTitle.indexOf(")", parenIndex);
+            if (closingParen > -1) {
+               extractedMeta = baseTitle.substring(parenIndex + 2, closingParen).replace(/,/g, " •");
+            }
+            baseTitle = baseTitle.substring(0, parenIndex);
+          }
+
+          const customTitle = cfg.movies && cfg.movies[s.FilmId] ? cfg.movies[s.FilmId].title : null;
+          const customPoster = cfg.movies && cfg.movies[s.FilmId] ? cfg.movies[s.FilmId].posterUrl : null;
+
+          groups.set(s.FilmId, {
+            FilmId: s.FilmId,
+            Title: customTitle && customTitle.trim().length > 0 ? customTitle : baseTitle,
+            metaInfo: extractedMeta,
+            Rating: s.Rating,
+            posterUrl: customPoster && customPoster.trim().length > 0 ? customPoster : (s.ExtractedImgixUrl || `https://signage-us.indy.systems/showings-poster/${s.FilmId}`),
+            showings: [],
+          });
+        }
+        const group = groups.get(s.FilmId)!;
+        group.showings.push(s);
+      });
+
+      // Sort showings within groups by start time
+      groups.forEach((group) => {
+        group.showings.sort(
+          (a, b) =>
+            new Date(a.FeatureStartTime).getTime() -
+            new Date(b.FeatureStartTime).getTime()
+        );
+      });
+
+      setMovieGroups(Array.from(groups.values()));
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch data", error);
+    }
+  };
+
+  useEffect(() => {
+    updateClock();
+    const clockInterval = setInterval(updateClock, 1000);
+    fetchData();
+    const showingInterval = setInterval(fetchData, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(clockInterval);
+      clearInterval(showingInterval);
+    };
+  }, []);
+
+  // Helper func to split movies into rows smartly based on display scaling needs
+  const chunkMovies = (groups: MovieGroup[]) => {
+    if (groups.length <= 3) return [groups];
+    // For 4 to 8 movies, splitting evenly into two rows prevents horizontal crowding
+    const mid = Math.ceil(groups.length / 2);
+    return [groups.slice(0, mid), groups.slice(mid)];
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]">
+      {/* Header matching the screenshot: small logo left, time right */}
+      <header className="flex justify-between items-center mb-3 shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://indy-systems.imgix.net/acawvcj8kswipsw2to0golg6x4ay?undefined"
+          alt="Tasveer Logo"
+          className="h-8 md:h-10 w-auto object-contain"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <div className="text-xl md:text-2xl font-medium text-white tracking-wide">
+          {timeStr}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </header>
+
+      <section className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2">
+        {loading ? (
+          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent animate-pulse">
+             <div className="w-12 h-12 border-4 border-card-border border-t-brand-accent rounded-full animate-spin mb-4"></div>
+            <h2 className="text-2xl font-semibold">Loading Schedule...</h2>
+          </div>
+        ) : movieGroups.length === 0 ? (
+          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent">
+            <h2 className="text-2xl font-semibold">No showings found for schedule</h2>
+          </div>
+        ) : (
+          chunkMovies(movieGroups).map((row, rowIndex, rowArray) => (
+            <div key={rowIndex} className="flex flex-1 flex-row justify-center gap-4 md:gap-8 w-full min-h-0 items-start">
+              {row.map((group) => (
+                <MovieCard key={group.FilmId} group={group} rowArrayLength={rowArray.length} config={config} />
+              ))}
+            </div>
+          ))
+        )}
+      </section>
+    </main>
   );
 }

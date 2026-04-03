@@ -1,0 +1,19 @@
+{
+  "dateOverride": "",
+  "movies": {
+    "106203": {
+      "title": "",
+      "posterUrl": ""
+    },
+    "106206": {
+      "title": "",
+      "posterUrl": ""
+    }
+  },
+  "badges": {},
+  "sessionBadges": {
+    "2931012": [],
+    "2931013": []
+  },
+  "mockMoviesCount": 0
+}
