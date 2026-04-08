@@ -28,17 +28,26 @@ export const formatTime = (isoString: string) => {
 export default function MovieShowing({ showing, config }: { showing: Showing, config: AppConfig | null }) {
   const match = showing.ScreenName.match(/\d+/);
   const hNum = match ? match[0] : "";
-  const isOpenCaption = showing.ShowingBadges?.includes("Open Captions");
-  const otherBadges = showing.ShowingBadges?.filter(b => b !== "Open Captions");
+  
+  const highlightedBadgesList = (showing.ShowingBadges || []).filter(badgeName => {
+     // Hardcoded fallback override for compatibility with old configuration assumptions
+     if (badgeName === "Open Captions" && config?.badges?.["Open Captions"]?.isHighlighted !== false) return true;
+     return config?.badges?.[badgeName]?.isHighlighted;
+  });
+  
+  const isHighlighted = highlightedBadgesList.length > 0;
+  const otherBadges = showing.ShowingBadges?.filter(b => !highlightedBadgesList.includes(b));
   
   const showTime = new Date(showing.FeatureStartTime);
   const isStarted = (new Date().getTime() - showTime.getTime()) / 60000 >= 15;
+  
+  const generateAbbreviation = (str: string) => str.split(/[\s-]+/).map(w => w[0]).join('').substring(0, 3).toUpperCase();
 
   return (
-    <div className={`flex flex-col rounded border transition-all duration-1000 ${isOpenCaption ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5'} ${isStarted ? 'opacity-40 grayscale' : ''}`}>
+    <div className={`flex flex-col rounded border transition-all duration-1000 ${isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5'} ${isStarted ? 'opacity-40 grayscale' : ''}`}>
       <div className="flex items-center justify-between w-full">
         <div 
-          className={`flex items-center gap-2 ${isOpenCaption ? 'text-[#b3d4ff]' : ''}`}
+          className={`flex items-center gap-2 ${isHighlighted ? 'text-[#b3d4ff]' : ''}`}
           style={{ fontSize: "max(1.5rem, 6.5cqi)" }}
         >
            <span className={isStarted ? 'line-through decoration-red-500/80 decoration-[3px]' : ''}>
@@ -47,7 +56,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
            
            {hNum && (
              <span 
-               className={`flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 ${isOpenCaption ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : ''}`}
+               className={`flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 ${isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : ''}`}
                style={{ width: "max(24px, 5cqi)", height: "max(24px, 5cqi)", fontSize: "max(11px, 2.8cqi)" }}
              >
                {hNum}
@@ -76,12 +85,18 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
         </div>
       </div>
       
-      {isOpenCaption && (
-        <div className="w-full flex items-center mt-1">
-          <div className="bg-[#0055ff] border border-[#3377ff] shadow-md px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5 leading-none">
-            <span className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter">OC</span>
-            <span className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]">Open Captions</span>
-          </div>
+      {isHighlighted && (
+        <div className="w-full flex items-center mt-1 gap-2 flex-wrap">
+          {highlightedBadgesList.map((badgeName, idx) => (
+            <div key={idx} className="bg-[#0055ff] border border-[#3377ff] shadow-md px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5 leading-none">
+              <span className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter">
+                {generateAbbreviation(badgeName)}
+              </span>
+              <span className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]">
+                {badgeName}
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>

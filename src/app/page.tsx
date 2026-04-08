@@ -1,13 +1,68 @@
 "use client";
 // Cache invalidation re-compile trigger
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import useSWR from "swr";
 import { MovieGroup, AppConfig, Showing } from "@/types/signage";
 // Import dynamically so mapped icon strings work
 import * as LucideIcons from "lucide-react";
 import Image from "next/image";
 import MovieCard from "@/components/signage/MovieCard";
+import AuxRenderer from "@/components/signage/AuxRenderer";
+
+/**
+ * Squish-to-fit: scales content down uniformly so everything is visible.
+ *
+ * Why this doesn't infinite-loop:
+ *   CSS `transform` does NOT affect layout/scrollHeight — the browser reports
+ *   the *natural* (pre-transform) size regardless of the current scale value.
+ *   So setScale() → re-render → transform changes visually, scrollHeight stays
+ *   the same → ResizeObserver on container doesn't fire → no loop.
+ *
+ *   We deliberately do NOT observe contentRef to avoid triggering on DOM mutations
+ *   that happen as React renders children.
+ */
+function ScaledAuxZone({ node }: { node: NonNullable<AppConfig['auxLayout']> }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  const recalc = useCallback(() => {
+    const container = containerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    const ch = container.clientHeight;
+    // scrollHeight = natural height unaffected by CSS transform — stable, no loop
+    const nh = content.scrollHeight;
+    if (!ch || !nh) return;
+    const s = Math.min(ch / nh, 1); // never upscale; width already fits 100%
+    setScale(prev => (Math.abs(prev - s) > 0.0005 ? s : prev));
+  }, []);
+
+  // Re-measure whenever container resizes OR node layout changes
+  useEffect(() => {
+    recalc();
+    const ro = new ResizeObserver(recalc);
+    if (containerRef.current) ro.observe(containerRef.current); // container only
+    return () => ro.disconnect();
+  }, [recalc, node]);
+
+  return (
+    <div ref={containerRef} className="w-full h-full overflow-hidden flex items-center justify-center">
+      <div
+        ref={contentRef}
+        style={{
+          transformOrigin: 'center',
+          transform: `scale(${scale})`,
+          width: '100%',
+        }}
+      >
+        <AuxRenderer node={node} />
+      </div>
+    </div>
+  );
+}
+
 
 export default function Home() {
   const [movieGroups, setMovieGroups] = useState<MovieGroup[]>([]);
@@ -117,9 +172,15 @@ export default function Home() {
       });
 
       setMovieGroups(Array.from(groups.values()));
-      setLoading(false);
     } catch (error) {
       console.error("Failed to fetch data", error);
+      // Failsafe: if the network completely drops on a kiosk, force a physical DOM reload after 15 seconds to try again
+      setTimeout(() => {
+        window.location.reload();
+      }, 15000);
+    } finally {
+      // Guarantee the spinner drops even on failure
+      setLoading(false);
     }
   };
 
@@ -127,20 +188,40 @@ export default function Home() {
     updateClock();
     const clockInterval = setInterval(updateClock, 1000);
     fetchData();
-    const showingInterval = setInterval(fetchData, 5 * 60 * 1000);
+    const showingInterval = setInterval(fetchData, 5 * 60 * 1000); // Poll API every 5m
+    
+    // Explicit Kiosk Memory Flush: hard reload the entire browser tab every 4 hours.
+    // Extremely effective for low-RAM devices (Raspberry PI) running unmonitored Chromium rendering engines 24/7.
+    const memoryFlushInterval = setInterval(() => {
+       window.location.reload();
+    }, 4 * 60 * 60 * 1000);
 
     return () => {
       clearInterval(clockInterval);
       clearInterval(showingInterval);
+      clearInterval(memoryFlushInterval);
     };
   }, []);
 
-  // Helper func to split movies into rows smartly based on display scaling needs
+  // Helper func to split movies into balanced rows (max 4 per row) dynamically
   const chunkMovies = (groups: MovieGroup[]) => {
-    if (groups.length <= 3) return [groups];
-    // For 4 to 8 movies, splitting evenly into two rows prevents horizontal crowding
-    const mid = Math.ceil(groups.length / 2);
-    return [groups.slice(0, mid), groups.slice(mid)];
+    const maxPerRow = 4;
+    if (groups.length <= maxPerRow) return [groups];
+    
+    const numRows = Math.ceil(groups.length / maxPerRow);
+    const result = [];
+    let currentIdx = 0;
+    
+    const baseCount = Math.floor(groups.length / numRows);
+    const extraItems = groups.length % numRows;
+    
+    for (let i = 0; i < numRows; i++) {
+        const rowCount = baseCount + (i < extraItems ? 1 : 0);
+        result.push(groups.slice(currentIdx, currentIdx + rowCount));
+        currentIdx += rowCount;
+    }
+    
+    return result;
   };
 
   return (
@@ -158,7 +239,14 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2">
+      <div className="flex flex-1 w-full h-full overflow-hidden">
+        
+        {/* Primary Interactive Module: Movies */}
+        <div 
+          className={`flex flex-col h-full shrink-0 transition-all duration-700 ${((config?.moviesColumnPercentage ?? 100) < 100) ? 'pr-4 lg:pr-8' : ''}`}
+          style={{ width: `${config?.moviesColumnPercentage ?? 100}%` }}
+        >
+          <section className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2">
         {loading ? (
           <div className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent animate-pulse">
              <div className="w-12 h-12 border-4 border-card-border border-t-brand-accent rounded-full animate-spin mb-4"></div>
@@ -177,7 +265,47 @@ export default function Home() {
             </div>
           ))
         )}
-      </section>
+          </section>
+        </div>
+
+        {/* Auxiliary Content Allocation Shell */}
+        {((config?.moviesColumnPercentage ?? 100) < 100) && (
+          <div 
+            className="flex flex-col h-full shrink-0 transition-all duration-700 border-l border-white/5 bg-white/[0.02] relative"
+            style={{ width: `${100 - (config?.moviesColumnPercentage ?? 100)}%` }}
+          >
+            {config?.auxLayout ? (
+              (() => {
+                const auxLayout = config!.auxLayout!;
+                const scale = config!.auxScale ?? 'scroll';
+                if (scale === 'fit') {
+                  return <ScaledAuxZone node={auxLayout} />;
+                }
+                if (scale === 'fill') {
+                  return (
+                    <div className="w-full h-full flex flex-col overflow-hidden">
+                      <AuxRenderer node={auxLayout} />
+                    </div>
+                  );
+                }
+                // scroll
+                return (
+                  <div className="w-full h-full overflow-auto">
+                    <AuxRenderer node={auxLayout} />
+                  </div>
+                );
+              })()
+            ) : (
+               <div className="flex flex-col items-center justify-center w-full h-full opacity-30 p-8 text-center text-balance overflow-auto">
+                 <LucideIcons.LayoutGrid className="w-16 h-16 mb-4 text-brand-accent opacity-50" />
+                 <h3 className="text-xl font-bold uppercase tracking-widest text-text-dim">Auxiliary Content Zone</h3>
+                 <p className="mt-2 text-sm max-w-sm">Reserved layout partition for secondary promotional media or generalized signage assets.</p>
+               </div>
+            )}
+          </div>
+        )}
+        
+      </div>
     </main>
   );
 }

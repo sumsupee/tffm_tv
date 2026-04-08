@@ -3,11 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 import * as LucideIcons from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
-import { AppConfig } from "@/types/signage";
+import { AppConfig, AuxNode } from "@/types/signage";
+import AuxiliaryEditor from "@/components/settings/AuxiliaryEditor";
 
 const POPULAR_ICONS = ["Accessibility", "Activity", "AlertTriangle", "AudioLines", "Baby", "BadgeCheck", "Bell", "Calendar", "Camera", "Captions", "Check", "Clock", "Ear", "Eye", "Flame", "Heart", "Info", "Languages", "ListX", "MapPin", "Mic", "Monitor", "MonitorPlay", "Play", "Settings", "Shield", "Sparkles", "Star", "Subtitles", "Ticket", "Tv", "User", "Users", "Volume2", "Wheelchair"];
 
-type TabView = "general" | "movies" | "badges" | "screenings";
+type TabView = "general" | "movies" | "badges" | "screenings" | "auxiliary";
 
 interface Movie {
   title: string;
@@ -21,6 +22,7 @@ export default function SettingsPage() {
   const [config, setConfig] = useState<AppConfig>({
     dateOverride: "",
     mockMoviesCount: 0,
+    moviesColumnPercentage: 100,
     movies: {},
     badges: {
       "Wheelchair Accessibility": { iconName: "Accessibility" },
@@ -120,7 +122,7 @@ export default function SettingsPage() {
     }));
   };
 
-  const updateBadge = (name: string, field: string, value: string) => {
+  const updateBadge = (name: string, field: string, value: any) => {
     setConfig((prev) => ({
       ...prev,
       badges: {
@@ -153,7 +155,7 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto border-b border-brand-dim/30 pb-4 mb-8">
+      <div className="flex gap-2 flex-wrap border-b border-brand-dim/30 pb-4 mb-8">
         <button 
           className={`px-4 py-2 border rounded transition-colors whitespace-nowrap ${activeTab === 'general' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent' : 'border-brand-dim/50 text-white hover:bg-white/5'}`} 
           onClick={() => setActiveTab('general')}
@@ -178,13 +180,67 @@ export default function SettingsPage() {
         >
           Screening Assignment
         </button>
+        <button 
+          className={`px-4 py-2 border rounded transition-colors whitespace-nowrap ${activeTab === 'auxiliary' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent' : 'border-brand-dim/50 text-white hover:bg-white/5'}`} 
+          onClick={() => setActiveTab('auxiliary')}
+        >
+          Auxiliary Layout
+        </button>
       </div>
 
       <div className="space-y-8 pb-12">
         {/* Global Date Override */}
         {activeTab === 'general' && (
         <section className="bg-card-bg p-6 rounded-lg border border-card-border">
-          <h2 className="text-2xl font-bold mb-4 font-serif italic tracking-wide text-brand-accent">General Configuration</h2>
+          <h2 className="text-2xl font-bold mb-4 tracking-tight text-brand-accent">General Configuration</h2>
+          
+          <div className="mt-4 mb-6">
+            <h2 className="text-xl font-semibold mb-2 text-brand-accent">Layout Distribution</h2>
+            <p className="text-text-dim text-sm mb-4">
+              Allocate horizontal screen space between the Primary Movie Schedule and the Auxiliary Content Board.
+            </p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4 w-full max-w-lg">
+                <input 
+                   type="range" 
+                   min="20" 
+                   max="100" 
+                   step="5"
+                   value={config.moviesColumnPercentage ?? 100}
+                   onChange={(e) => setConfig((prev) => ({...prev, moviesColumnPercentage: parseInt(e.target.value)}))}
+                   className="w-full accent-brand-accent h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="text-white font-bold text-xl min-w-[80px] shrink-0 text-right">
+                  {config.moviesColumnPercentage ?? 100}%
+                </span>
+              </div>
+              <div className="flex justify-between w-full max-w-lg text-xs font-bold uppercase tracking-widest text-text-dim px-1">
+                <span>Movies</span>
+                <span>{100 - (config.moviesColumnPercentage ?? 100)}% Auxiliary</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-card-border pt-6">
+            <h2 className="text-xl font-semibold mb-1 text-brand-accent">Auxiliary Zone Overflow</h2>
+            <p className="text-text-dim text-sm mb-4">Controls what happens when auxiliary content exceeds the visible area.</p>
+            <div className="flex gap-3 flex-wrap">
+              {(['fit', 'fill', 'scroll'] as const).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => setConfig(prev => ({ ...prev, auxScale: mode }))}
+                  className={`px-5 py-3 rounded-lg border text-sm font-bold uppercase tracking-wider transition-all ${(config.auxScale ?? 'scroll') === mode ? 'bg-brand-accent/20 border-brand-accent text-brand-accent' : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white'}`}
+                >
+                  {mode === 'fit' ? '⇗ Squish to Fit' : mode === 'fill' ? '⤢ Stretch Fill' : '↕ Scrollable'}
+                </button>
+              ))}
+            </div>
+            <p className="text-text-dim text-xs mt-3">
+              {(config.auxScale ?? 'scroll') === 'fit' && 'Content is scaled down to fit the viewport—nothing is cut off.'}
+              {(config.auxScale ?? 'scroll') === 'fill' && 'Content stretches to fill the full height of the auxiliary area.'}
+              {(config.auxScale ?? 'scroll') === 'scroll' && 'Content overflows naturally and becomes scrollable.'}
+            </p>
+          </div>
           
           <div className="mt-8 border-t border-card-border pt-6 flex items-center justify-between">
             <div>
@@ -389,6 +445,15 @@ export default function SettingsPage() {
                       Remove
                     </button>
                   </div>
+                  <label className="flex items-center gap-2 mt-4 cursor-pointer text-sm font-semibold text-brand-accent/90 hover:text-brand-accent transition-colors w-max">
+                    <input 
+                      type="checkbox" 
+                      checked={!!config.badges[badgeName].isHighlighted}
+                      onChange={(e) => updateBadge(badgeName, "isHighlighted", e.target.checked)}
+                      className="w-4 h-4 accent-brand-accent rounded border border-brand-accent/50 bg-black cursor-pointer"
+                    />
+                    Highlight this screening type
+                  </label>
                 </div>
               </div>
             ))}
@@ -515,6 +580,20 @@ export default function SettingsPage() {
               );
             })}
           </div>
+        </section>
+        )}
+
+        {/* Auxiliary Visual Builder Route */}
+        {activeTab === 'auxiliary' && (
+        <section className="bg-card-bg p-6 rounded-lg border border-card-border animate-in fade-in zoom-in duration-300">
+          <h2 className="text-2xl font-bold mb-4 tracking-tight text-brand-accent">Auxiliary Design Studio</h2>
+          <p className="text-text-dim text-sm mb-6">
+            Construct dynamic layout combinations natively matching the primary screen aesthetic. Easily embed structural tables, HTML rich-text, and direct images without touching code infrastructure. Ensure your <button onClick={() => setActiveTab('general')} className="text-brand-accent underline">General Configuration width</button> is pulled below 100% to visualize this layout natively!
+          </p>
+          <AuxiliaryEditor 
+            layout={config.auxLayout} 
+            onChange={(newNode) => setConfig((prev) => ({ ...prev, auxLayout: newNode }))} 
+          />
         </section>
         )}
 
