@@ -4,9 +4,18 @@ import path from 'path';
 
 export async function GET() {
   try {
+    // 10-second timeout on external calls \u2014 prevents the Pi's Next.js server from hanging
+    // when the Indy API is slow/unreachable, which would freeze the client loading screen.
+    const makeSignal = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), ms);
+      return controller.signal;
+    };
+
     // 1. Fetch the simple JSON array which has exact ShowBadges, ShowTimes, and ScreenNames
     const jsonRes = await fetch("https://api-us.indy.systems/sessions/upcoming_sessions.json?site_id=262", {
-      next: { revalidate: 60 }
+      next: { revalidate: 60 },
+      signal: makeSignal(10_000),
     });
     let sessions = await jsonRes.json();
     sessions = Array.isArray(sessions) ? sessions : sessions.sessions || [];
@@ -27,11 +36,10 @@ export async function GET() {
 
     const gqlRes = await fetch("https://api-us.indy.systems/graphql", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: gqlQuery }),
-      next: { revalidate: 60 }
+      next: { revalidate: 60 },
+      signal: makeSignal(10_000),
     });
 
     const gqlData = await gqlRes.json();

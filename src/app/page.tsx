@@ -100,11 +100,21 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      // Fetch both configurations and showings together
-      const [cfgRes, apiRes] = await Promise.all([
-        fetch("/api/config"),
-        fetch("/api/showings")
-      ]);
+      // 8-second timeout — prevents Pi from hanging indefinitely if the server-side API is slow.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8_000);
+
+      let cfgRes: Response, apiRes: Response;
+      try {
+        [cfgRes, apiRes] = await Promise.all([
+          fetch("/api/config", { signal: controller.signal }),
+          fetch("/api/showings", { signal: controller.signal })
+        ]);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      if (!cfgRes.ok || !apiRes.ok) throw new Error(`API error: config=${cfgRes.status} showings=${apiRes.status}`);
       
       const cfg: AppConfig = await cfgRes.json();
       const data = await apiRes.json();
@@ -184,22 +194,29 @@ export default function Home() {
     }
   };
 
+  // Clock runs independently — a hanging API fetch can never block time updates.
   useEffect(() => {
     updateClock();
     const clockInterval = setInterval(updateClock, 1000);
+    return () => clearInterval(clockInterval);
+  }, []);
+
+  // Data fetching — completely decoupled from the clock.
+  useEffect(() => {
     fetchData();
-    const showingInterval = setInterval(fetchData, 5 * 60 * 1000); // Poll API every 5m
-    
-    // Explicit Kiosk Memory Flush: hard reload the entire browser tab every 4 hours.
-    // Extremely effective for low-RAM devices (Raspberry PI) running unmonitored Chromium rendering engines 24/7.
-    const memoryFlushInterval = setInterval(() => {
-       window.location.reload();
-    }, 4 * 60 * 60 * 1000);
+    const showingInterval = setInterval(fetchData, 5 * 60 * 1000);
+
+    // Hard loading failsafe: if the API doesn't respond in 10s (e.g. network issue on Pi)
+    // drop the spinner so the UI isn't frozen on the logo screen.
+    const loadingKillswitch = setTimeout(() => setLoading(false), 10_000);
+
+    // Kiosk memory flush every 4 hours — helps low-RAM Pi stay stable overnight.
+    const memoryFlushInterval = setInterval(() => window.location.reload(), 4 * 60 * 60 * 1000);
 
     return () => {
-      clearInterval(clockInterval);
       clearInterval(showingInterval);
       clearInterval(memoryFlushInterval);
+      clearTimeout(loadingKillswitch);
     };
   }, []);
 
