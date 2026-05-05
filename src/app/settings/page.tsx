@@ -5,6 +5,7 @@ import * as LucideIcons from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { AppConfig, AuxNode } from "@/types/signage";
 import AuxiliaryEditor from "@/components/settings/AuxiliaryEditor";
+import LZString from "lz-string";
 
 const POPULAR_ICONS = ["Accessibility", "Activity", "AlertTriangle", "AudioLines", "Baby", "BadgeCheck", "Bell", "Calendar", "Camera", "Captions", "Check", "Clock", "Ear", "Eye", "Flame", "Heart", "Info", "Languages", "ListX", "MapPin", "Mic", "Monitor", "MonitorPlay", "Play", "Settings", "Shield", "Sparkles", "Star", "Subtitles", "Ticket", "Tv", "User", "Users", "Volume2", "Wheelchair"];
 
@@ -43,18 +44,24 @@ export default function SettingsPage() {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/config"),
-      fetch("/api/showings")
-    ])
-      .then(async ([cfgRes, apiRes]) => {
-        const data = await cfgRes.json();
+    fetch("/api/showings")
+      .then(async (apiRes) => {
         const apiData = await apiRes.json();
         
-        if (!data.movies) data.movies = {};
-        if (!data.badges) data.badges = {};
-        if (!data.sessionBadges) data.sessionBadges = {};
-        setConfig(data);
+        if (typeof window !== "undefined" && window.location.hash.length > 1) {
+           try {
+              const raw = LZString.decompressFromBase64(window.location.hash.slice(1));
+              if (raw) {
+                const data = JSON.parse(raw);
+                if (!data.movies) data.movies = {};
+                if (!data.badges) data.badges = {};
+                if (!data.sessionBadges) data.sessionBadges = {};
+                setConfig(data);
+              }
+           } catch (e) {
+              console.error("Failed to parse config from URL hash", e);
+           }
+        }
 
         const sessions = Array.isArray(apiData) ? apiData : apiData.sessions || [];
         const upcomingSessions = sessions.filter((s: any) => new Date(s.FeatureEndTime) > new Date());
@@ -75,24 +82,23 @@ export default function SettingsPage() {
       });
   }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
+  const generateSignageUrl = () => {
+    const raw = JSON.stringify(config);
+    const compressed = LZString.compressToBase64(raw);
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return `${origin}/#${compressed}`;
+  };
+
+  const handleCopyUrl = async () => {
     try {
-      await fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
-      });
-      console.log("Manual save triggered");
-    } catch (e) {
-      console.error(e);
-      alert("Failed to save settings.");
-    } finally {
-      setSaving(false);
+      await navigator.clipboard.writeText(generateSignageUrl());
+      toast.success("Tasveer Signage TV URL copied to clipboard!");
+    } catch {
+      alert("Failed to copy directly. Please manually copy the URL from your browser address bar.");
     }
   };
 
-  // Debounced Auto-save Effect
+  // Auto-update URL hash
   useEffect(() => {
     if (loading) return; 
     
@@ -102,12 +108,10 @@ export default function SettingsPage() {
     }
     
     const timer = setTimeout(() => {
-      fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
-      }).catch(e => console.error("Auto-save failed", e));
-    }, 1500);
+      const raw = JSON.stringify(config);
+      const compressed = LZString.compressToBase64(raw);
+      window.history.replaceState(null, "", `#${compressed}`);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [config, loading]);
@@ -144,15 +148,20 @@ export default function SettingsPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto text-white overflow-y-auto h-screen hide-scrollbar">
-      <div className="flex justify-between items-center mb-6 border-b border-brand-dim/30 pb-4">
-        <h1 className="text-3xl font-bold text-brand-accent">Tasveer Signage Settings</h1>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="border border-brand-accent bg-brand-accent/10 text-brand-accent px-6 py-2 rounded font-bold text-lg hover:bg-brand-accent/30 hover:shadow-[0_0_15px_rgba(102,252,241,0.2)] transition-all"
-        >
-          {saving ? "Saving..." : "Save"}
-        </button>
+      <Toaster toastOptions={{ style: { background: '#333', color: '#fff' } }} />
+      <div className="flex flex-col gap-4 mb-6 border-b border-brand-dim/30 pb-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-brand-accent">Tasveer Signage Settings</h1>
+          <button
+            onClick={handleCopyUrl}
+            className="border border-brand-accent bg-brand-accent/10 text-brand-accent px-6 py-2 rounded font-bold text-lg hover:bg-brand-accent/30 hover:shadow-[0_0_15px_rgba(102,252,241,0.2)] transition-all flex flex-row items-center gap-2"
+          >
+            <LucideIcons.Copy size={20} /> Copy TV URL
+          </button>
+        </div>
+        <div className="bg-black border border-white/20 p-3 rounded font-mono text-sm text-brand-accent cursor-text select-all overflow-hidden text-ellipsis whitespace-nowrap">
+           {typeof window !== "undefined" ? generateSignageUrl() : "Loading URL..."}
+        </div>
       </div>
 
       <div className="flex gap-2 flex-wrap border-b border-brand-dim/30 pb-4 mb-8">

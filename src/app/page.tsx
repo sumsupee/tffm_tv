@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import useSWR from "swr";
-import { MovieGroup, AppConfig, Showing } from "@/types/signage";
+import { MovieGroup, AppConfig, Showing, DEFAULT_CONFIG } from "@/types/signage";
+import LZString from "lz-string";
 // Import dynamically so mapped icon strings work
 import * as LucideIcons from "lucide-react";
 import Image from "next/image";
@@ -104,19 +105,25 @@ export default function Home() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8_000);
 
-      let cfgRes: Response, apiRes: Response;
+      let apiRes: Response;
       try {
-        [cfgRes, apiRes] = await Promise.all([
-          fetch("/api/config", { signal: controller.signal }),
-          fetch("/api/showings", { signal: controller.signal })
-        ]);
+        apiRes = await fetch("/api/showings", { signal: controller.signal });
       } finally {
         clearTimeout(timeoutId);
       }
 
-      if (!cfgRes.ok || !apiRes.ok) throw new Error(`API error: config=${cfgRes.status} showings=${apiRes.status}`);
+      if (!apiRes.ok) throw new Error(`API error: showings=${apiRes.status}`);
       
-      const cfg: AppConfig = await cfgRes.json();
+      let cfg: AppConfig = DEFAULT_CONFIG;
+      if (typeof window !== "undefined" && window.location.hash.length > 1) {
+        try {
+          const raw = LZString.decompressFromBase64(window.location.hash.slice(1));
+          cfg = raw ? JSON.parse(raw) : DEFAULT_CONFIG;
+        } catch (e) {
+          console.error("Failed to parse config from URL hash", e);
+        }
+      }
+
       const data = await apiRes.json();
       
       setConfig(cfg);

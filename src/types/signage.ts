@@ -47,3 +47,10 @@ export interface AppConfig {
   badges: Record<string, { iconName?: string; label?: string; isHighlighted?: boolean }>;
   sessionBadges: Record<string, string[]>;
 }
+
+export const DEFAULT_CONFIG: AppConfig = {
+  dateOverride: "",
+  movies: {},
+  badges: {},
+  sessionBadges: {},
+};
