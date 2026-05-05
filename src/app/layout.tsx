@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,16 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Tasveer Film Center — Signage",
   description: "Digital signage display for Tasveer Film Center",
+};
+
+// Ensures Chromium on Raspberry Pi renders at device resolution (1:1 scale)
+// without this, older Chromium uses a virtual 980px viewport and scales down,
+// showing only part of the screen.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
