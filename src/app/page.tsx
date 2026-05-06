@@ -56,7 +56,7 @@ function ScaledAuxZone({ node }: { node: NonNullable<AppConfig['auxLayout']> }) 
         ref={contentRef}
         style={{
           transformOrigin: 'center',
-          transform: `scale(${scale})`,
+          transform: "scale(" + scale + ")",
           width: '100%',
         }}
       >
@@ -72,6 +72,20 @@ export default function Home() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeStr, setTimeStr] = useState("00:00 AM");
+  const [debugError, setDebugError] = useState<string | null>(null);
+
+  // Global error handler for debugging on legacy hardware
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleError = (msg: any, url: any, line: any, col: any, error: any) => {
+        const err = "ERR: " + msg + " at " + line + ":" + col;
+        setDebugError(err);
+        return false;
+      };
+      window.onerror = handleError;
+      return () => { window.onerror = null; };
+    }
+  }, []);
 
   const updateClock = () => {
     const now = new Date();
@@ -91,7 +105,7 @@ export default function Home() {
        // Parse custom YYYY-MM-DD
        const parts = override.split('-');
        if(parts.length === 3) {
-          today = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+          today = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10)-1, parseInt(parts[2], 10));
        }
     }
 
@@ -110,7 +124,7 @@ export default function Home() {
       
       if (typeof window !== 'undefined' && 'AbortController' in window) {
         controller = new AbortController();
-        timeoutId = setTimeout(() => controller?.abort(), 8_000);
+        timeoutId = setTimeout(function() { if (controller) controller.abort(); }, 8_000);
       }
 
       let apiRes: Response;
@@ -158,8 +172,8 @@ export default function Home() {
 
       todaysSessions.forEach((s: Showing) => {
         // apply session custom badges
-        const sessionCustomBadges = cfg.sessionBadges && cfg.sessionBadges[s.Id] ? cfg.sessionBadges[s.Id] : [];
-        s.ShowingBadges = [...(s.ShowingBadges || []), ...sessionCustomBadges];
+        const sessionCustomBadges = (cfg.sessionBadges && cfg.sessionBadges[s.Id]) ? cfg.sessionBadges[s.Id] : [];
+        s.ShowingBadges = (s.ShowingBadges || []).concat(sessionCustomBadges);
 
         if (!groups.has(s.FilmId)) {
           // Clean the title by extracting trailing parenthesis info if present
@@ -264,6 +278,13 @@ export default function Home() {
       className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]"
       style={{ backgroundColor: '#0a0a0a', color: 'white' }}
     >
+      {/* Debug Overlay — only shows on crash */}
+      {debugError && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-900 text-white p-2 text-xs font-mono break-all opacity-80">
+          {debugError}
+        </div>
+      )}
+
       {/* Header matching the screenshot: small logo left, time right */}
       <header className="flex justify-between items-center mb-3 shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -282,8 +303,8 @@ export default function Home() {
         
         {/* Primary Interactive Module: Movies */}
         <div 
-          className={`flex flex-col h-full shrink-0 transition-all duration-700 ${((config?.moviesColumnPercentage ?? 100) < 100) ? 'pr-4 lg:pr-8' : ''}`}
-          style={{ width: `${config?.moviesColumnPercentage ?? 100}%` }}
+          className={"flex flex-col h-full shrink-0 transition-all duration-700 " + (((config && config.moviesColumnPercentage) || 100) < 100 ? 'pr-4 lg:pr-8' : '')}
+          style={{ width: ((config && config.moviesColumnPercentage) || 100) + "%" }}
         >
           <section className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2">
         {loading ? (
@@ -308,15 +329,15 @@ export default function Home() {
         </div>
 
         {/* Auxiliary Content Allocation Shell */}
-        {((config?.moviesColumnPercentage ?? 100) < 100) && (
+        {((config && config.moviesColumnPercentage) || 100) < 100 && (
           <div 
             className="flex flex-col h-full shrink-0 transition-all duration-700 border-l border-white/5 bg-white/[0.02] relative"
-            style={{ width: `${100 - (config?.moviesColumnPercentage ?? 100)}%` }}
+            style={{ width: (100 - ((config && config.moviesColumnPercentage) || 100)) + "%" }}
           >
-            {config?.auxLayout ? (
-              (() => {
-                const auxLayout = config!.auxLayout!;
-                const scale = config!.auxScale ?? 'scroll';
+            {(config && config.auxLayout) ? (
+              (function() {
+                const auxLayout = config.auxLayout;
+                const scale = config.auxScale || 'scroll';
                 if (scale === 'fit') {
                   return <ScaledAuxZone node={auxLayout} />;
                 }

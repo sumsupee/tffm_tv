@@ -14,7 +14,7 @@ function getYoutubeEmbedUrl(url: string, autoplay: boolean, loop: boolean): stri
       const params = new URLSearchParams({
         autoplay: autoplay ? '1' : '0',
         loop: loop ? '1' : '0',
-        ...(loop ? { playlist: id } : {}),
+        playlist: loop ? id : '',
         mute: autoplay ? '1' : '0',
         controls: '0',
         rel: '0',
@@ -44,7 +44,7 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
         className="flex flex-col w-full h-full"
         style={nodeStyle(node)}
       >
-        {node.children?.map(child => <AuxRenderer key={child.id} node={child} />)}
+        {(node.children || []).map(function(child) { return <AuxRenderer key={child.id} node={child} />; })}
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
         className={`flex w-full min-h-0 ${stacked ? 'flex-col' : 'flex-row'}`}
         style={nodeStyle(node)}
       >
-        {node.children?.map(child => <AuxRenderer key={child.id} node={child} />)}
+        {(node.children || []).map(function(child) { return <AuxRenderer key={child.id} node={child} />; })}
       </div>
     );
   }

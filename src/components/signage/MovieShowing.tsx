@@ -3,10 +3,10 @@ import { StairIcon } from "./StairIcon";
 import { Showing, AppConfig } from "@/types/signage";
 
 export const getDynamicIconComponent = (config: AppConfig | null, badgeName: string, idx: number) => {
-   const cfgIcon = config?.badges?.[badgeName]?.iconName;
+   const cfgIcon = (config && config.badges && config.badges[badgeName]) ? config.badges[badgeName].iconName : null;
    if (cfgIcon && (LucideIcons as any)[cfgIcon]) {
        const Icon = (LucideIcons as any)[cfgIcon];
-       return <Icon key={`${idx}-${badgeName}`} size="1em" className="text-brand-accent shrink-0" aria-label={badgeName} />;
+       return <Icon key={idx + "-" + badgeName} size="1em" className="text-brand-accent shrink-0" aria-label={badgeName} />;
    }
    
    if(badgeName.includes("Wheelchair")) return <LucideIcons.Accessibility key={`${idx}-${badgeName}`} size="1em" className="text-blue-400 shrink-0" aria-label={badgeName} />;
@@ -19,10 +19,11 @@ export const getDynamicIconComponent = (config: AppConfig | null, badgeName: str
 export const formatTime = (isoString: string) => {
   const date = new Date(isoString);
   let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const minsRaw = date.getMinutes();
+  const minutes = minsRaw < 10 ? "0" + minsRaw : String(minsRaw);
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
-  return `${hours}:${minutes} ${ampm}`;
+  return hours + ":" + minutes + " " + ampm;
 };
 
 export default function MovieShowing({ showing, config }: { showing: Showing, config: AppConfig | null }) {
@@ -31,12 +32,12 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
   
   const highlightedBadgesList = (showing.ShowingBadges || []).filter(badgeName => {
      // Hardcoded fallback override for compatibility with old configuration assumptions
-     if (badgeName === "Open Captions" && config?.badges?.["Open Captions"]?.isHighlighted !== false) return true;
-     return config?.badges?.[badgeName]?.isHighlighted;
+     if (badgeName === "Open Captions" && config && config.badges && config.badges["Open Captions"] && config.badges["Open Captions"].isHighlighted !== false) return true;
+     return config && config.badges && config.badges[badgeName] && config.badges[badgeName].isHighlighted;
   });
   
   const isHighlighted = highlightedBadgesList.length > 0;
-  const otherBadges = showing.ShowingBadges?.filter(b => !highlightedBadgesList.includes(b));
+  const otherBadges = (showing.ShowingBadges || []).filter(function(b) { return highlightedBadgesList.indexOf(b) === -1; });
   
   const showTime = new Date(showing.FeatureStartTime);
   const isStarted = (new Date().getTime() - showTime.getTime()) / 60000 >= 15;
@@ -65,11 +66,11 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
         </div>
 
         <div className="flex items-center justify-end gap-[2px] opacity-90" style={{ fontSize: "max(18px, 4cqi)" }}>
-           {otherBadges?.map((badgeName, idx) => {
+           {(otherBadges || []).map((badgeName, idx) => {
                const iconComponent = getDynamicIconComponent(config, badgeName, idx);
                if (!iconComponent) return null;
                
-               const displayText = config?.badges?.[badgeName]?.label;
+               const displayText = (config && config.badges && config.badges[badgeName]) ? config.badges[badgeName].label : null;
                
                return (
                  <div key={`${showing.Id}-${badgeName}-${idx}`} className="flex items-center gap-1 opacity-80" aria-label={badgeName}>
