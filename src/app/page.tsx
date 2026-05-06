@@ -286,7 +286,10 @@ export default function Home() {
       )}
 
       {/* Header matching the screenshot: small logo left, time right */}
-      <header className="flex justify-between items-center mb-3 shrink-0">
+      <header 
+        className="flex justify-between items-center mb-3 shrink-0"
+        style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://indy-systems.imgix.net/acawvcj8kswipsw2to0golg6x4ay?undefined"
@@ -294,31 +297,55 @@ export default function Home() {
           className="h-8 md:h-10 w-auto object-contain"
           style={{ height: '40px', width: 'auto', maxWidth: '200px' }}
         />
-        <div className="text-xl md:text-2xl font-medium text-white tracking-wide">
+        <div 
+          className="text-xl md:text-2xl font-medium text-white tracking-wide"
+          style={{ color: 'white' }}
+        >
           {timeStr}
         </div>
       </header>
 
-      <div className="flex flex-1 w-full h-full overflow-hidden">
+      <div 
+        className="flex flex-1 w-full h-full overflow-hidden"
+        style={{ display: 'flex', flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}
+      >
         
         {/* Primary Interactive Module: Movies */}
         <div 
           className={"flex flex-col h-full shrink-0 transition-all duration-700 " + (((config && config.moviesColumnPercentage) || 100) < 100 ? 'pr-4 lg:pr-8' : '')}
-          style={{ width: ((config && config.moviesColumnPercentage) || 100) + "%" }}
+          style={{ 
+            width: ((config && config.moviesColumnPercentage) || 100) + "%",
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%'
+          }}
         >
-          <section className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2">
+          <section 
+            className="flex flex-1 flex-col justify-center gap-4 md:gap-8 overflow-hidden items-center w-full h-full pb-2"
+            style={{ display: 'flex', flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', paddingBottom: '8px', overflow: 'hidden' }}
+          >
         {loading ? (
-          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent animate-pulse">
+          <div 
+            className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent animate-pulse"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#ff6600' }}
+          >
              <div className="w-12 h-12 border-4 border-card-border border-t-brand-accent rounded-full animate-spin mb-4"></div>
             <h2 className="text-2xl font-semibold">Loading Schedule...</h2>
           </div>
         ) : movieGroups.length === 0 ? (
-          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent">
+          <div 
+            className="w-full h-[50vh] flex flex-col items-center justify-center text-brand-accent"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#ff6600' }}
+          >
             <h2 className="text-2xl font-semibold">No showings found for schedule</h2>
           </div>
         ) : (
           chunkMovies(movieGroups).map((row, rowIndex, rowArray) => (
-            <div key={rowIndex} className="flex flex-1 flex-row justify-center gap-4 md:gap-8 w-full min-h-0 items-start">
+            <div 
+              key={rowIndex} 
+              className="flex flex-1 flex-row justify-center gap-4 md:gap-8 w-full min-h-0 items-start"
+              style={{ display: 'flex', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minHeight: 0 }}
+            >
               {row.map((group) => (
                 <MovieCard key={group.FilmId} group={group} rowArrayLength={rowArray.length} config={config} />
               ))}
@@ -332,7 +359,13 @@ export default function Home() {
         {((config && config.moviesColumnPercentage) || 100) < 100 && (
           <div 
             className="flex flex-col h-full shrink-0 transition-all duration-700 border-l border-white/5 bg-white/[0.02] relative"
-            style={{ width: (100 - ((config && config.moviesColumnPercentage) || 100)) + "%" }}
+            style={{ 
+              width: (100 - ((config && config.moviesColumnPercentage) || 100)) + "%",
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              borderLeft: '1px solid rgba(255,255,255,0.05)'
+            }}
           >
             {(config && config.auxLayout) ? (
               (function() {

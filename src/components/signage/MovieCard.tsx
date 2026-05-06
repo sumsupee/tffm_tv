@@ -6,16 +6,23 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: `calc((((100vh - 120px - ${(rowArrayLength - 1) * 32}px) / ${rowArrayLength}) - ${80 + (group.showings.length * 55)}px) * 0.666)`,
+        maxWidth: "calc((((100vh - 120px - " + ((rowArrayLength - 1) * 32) + "px) / " + rowArrayLength + ") - " + (80 + (group.showings.length * 55)) + "px) * 0.666)",
         backgroundColor: 'transparent',
-        color: 'white'
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        margin: '0 10px'
       }}
     >
       <div 
         className="w-full flex flex-col"
-        style={{ containerType: 'inline-size' }}
+        style={{ containerType: 'inline-size', display: 'flex', flexDirection: 'column', width: '100%' }}
       >
-        <div className="relative w-full aspect-[2/3] shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50">
+        <div 
+          className="relative w-full aspect-[2/3] shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
+          style={{ position: 'relative', width: '100%', height: 'auto', minHeight: '150px', backgroundColor: '#050505', marginBottom: '16px' }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={group.posterUrl}
@@ -61,7 +68,10 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
 
         <div className="w-full h-[3px] bg-[#d35400] mb-2 shrink-0 rounded-sm"></div>
 
-        <div className="flex flex-col gap-[3px] text-white text-xl font-bold tracking-wide w-full shrink-0 overflow-y-auto hide-scrollbar sm:pb-8">
+        <div 
+          className="flex flex-col gap-[3px] text-white text-xl font-bold tracking-wide w-full shrink-0 overflow-y-auto hide-scrollbar sm:pb-8"
+          style={{ display: 'flex', flexDirection: 'column', width: '100%', color: 'white' }}
+        >
           {group.showings.map((showing) => (
             <MovieShowing key={showing.Id} showing={showing} config={config} />
           ))}

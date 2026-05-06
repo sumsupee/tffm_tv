@@ -45,11 +45,17 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
   const generateAbbreviation = (str: string) => str.split(/[\s-]+/).map(w => w[0]).join('').substring(0, 3).toUpperCase();
 
   return (
-    <div className={`flex flex-col rounded border transition-all duration-1000 ${isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5'} ${isStarted ? 'opacity-40 grayscale' : ''}`}>
-      <div className="flex items-center justify-between w-full">
+    <div 
+      className={"flex flex-col rounded border transition-all duration-1000 " + (isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5') + " " + (isStarted ? 'opacity-40 grayscale' : '')}
+      style={{ display: 'flex', flexDirection: 'column' }}
+    >
+      <div 
+        className="flex items-center justify-between w-full"
+        style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
+      >
         <div 
-          className={`flex items-center gap-2 ${isHighlighted ? 'text-[#b3d4ff]' : ''}`}
-          style={{ fontSize: "max(1.5rem, 6.5cqi)" }}
+          className={"flex items-center gap-2 " + (isHighlighted ? 'text-[#b3d4ff]' : '')}
+          style={{ fontSize: "max(1.5rem, 6.5cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center' }}
         >
            <span className={isStarted ? 'line-through decoration-red-500/80 decoration-[3px]' : ''}>
              {formatTime(showing.FeatureStartTime)}
@@ -57,15 +63,18 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
            
            {hNum && (
              <span 
-               className={`flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 ${isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : ''}`}
-               style={{ width: "max(24px, 5cqi)", height: "max(24px, 5cqi)", fontSize: "max(11px, 2.8cqi)" }}
+               className={"flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
+               style={{ width: "max(24px, 5cqi)", height: "max(24px, 5cqi)", fontSize: "max(11px, 2.8cqi)", display: 'flex', alignItems: 'center', justifyContent: 'center' }}
              >
                {hNum}
              </span>
            )}
         </div>
 
-        <div className="flex items-center justify-end gap-[2px] opacity-90" style={{ fontSize: "max(18px, 4cqi)" }}>
+        <div 
+          className="flex items-center justify-end gap-[2px] opacity-90" 
+          style={{ fontSize: "max(18px, 4cqi)", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+        >
            {(otherBadges || []).map((badgeName, idx) => {
                const iconComponent = getDynamicIconComponent(config, badgeName, idx);
                if (!iconComponent) return null;
@@ -73,7 +82,12 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
                const displayText = (config && config.badges && config.badges[badgeName]) ? config.badges[badgeName].label : null;
                
                return (
-                 <div key={`${showing.Id}-${badgeName}-${idx}`} className="flex items-center gap-1 opacity-80" aria-label={badgeName}>
+                  <div 
+                    key={showing.Id + "-" + badgeName + "-" + idx} 
+                    className="flex items-center gap-1 opacity-80" 
+                    aria-label={badgeName}
+                    style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+                  >
                    {iconComponent}
                    {displayText && (
                      <span className="text-white shrink-0 ml-0.5 tracking-wide" style={{ fontSize: "max(10px, 2.5cqi)" }}>
@@ -87,10 +101,20 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
       </div>
       
       {isHighlighted && (
-        <div className="w-full flex items-center mt-1 gap-2 flex-wrap">
+        <div 
+          className="w-full flex items-center mt-1 gap-2 flex-wrap"
+          style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '4px' }}
+        >
           {highlightedBadgesList.map((badgeName, idx) => (
-            <div key={idx} className="bg-[#0055ff] border border-[#3377ff] shadow-md px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5 leading-none">
-              <span className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter">
+            <div 
+              key={idx} 
+              className="bg-[#0055ff] border border-[#3377ff] shadow-md px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5 leading-none"
+              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '2px 6px', marginRight: '8px' }}
+            >
+              <span 
+                className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
                 {generateAbbreviation(badgeName)}
               </span>
               <span className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]">
