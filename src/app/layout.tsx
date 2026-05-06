@@ -40,6 +40,25 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.onerror = function(msg, url, line, col, error) {
+            var div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.right = '0';
+            div.style.backgroundColor = 'red';
+            div.style.color = 'white';
+            div.style.padding = '10px';
+            div.style.zIndex = '10000';
+            div.style.fontSize = '12px';
+            div.innerHTML = 'JS ERR: ' + msg + ' (line ' + line + ')<br>UA: ' + navigator.userAgent;
+            document.body.appendChild(div);
+          };
+          console.log('Legacy log: ' + navigator.userAgent);
+        ` }} />
+      </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
