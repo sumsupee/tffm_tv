@@ -21,7 +21,18 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
       >
         <div 
           className="relative w-full aspect-[2/3] shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
-          style={{ position: 'relative', width: '100%', height: 'auto', minHeight: '150px', backgroundColor: '#050505', marginBottom: '16px' }}
+          style={{ 
+            position: 'relative', 
+            width: '100%', 
+            height: 'auto', 
+            minHeight: '150px', 
+            backgroundColor: '#050505', 
+            marginBottom: '16px',
+            borderRadius: '4px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+            overflow: 'hidden'
+          }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -34,13 +45,28 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
             }}
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+          <div 
+            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 70%, transparent 100%)'
+            }}
+          ></div>
 
           <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
             <div>
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
-                style={{ fontSize: "max(1.4rem, 6cqi)", color: 'white' }}
+                style={{ 
+                  fontSize: "max(1.4rem, 6cqi)", 
+                  color: 'white', 
+                  fontWeight: 'bold', 
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                  whiteSpace: 'normal'
+                }}
               >
                 {group.Title}
               </h2>
@@ -57,7 +83,15 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                {group.Rating && (
                 <span 
                   className="bg-[#cc0000] text-white font-bold px-[6px] py-[2px] leading-none tracking-wider rounded-sm shadow-md"
-                  style={{ fontSize: "max(14px, 3.5cqi)" }}
+                  style={{ 
+                    fontSize: "max(14px, 3.5cqi)", 
+                    backgroundColor: '#cc0000', 
+                    color: 'white', 
+                    fontWeight: 'bold', 
+                    padding: '2px 6px', 
+                    borderRadius: '2px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                  }}
                 >
                   {group.Rating}
                 </span>
@@ -66,7 +100,10 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
           </div>
         </div>
 
-        <div className="w-full h-[3px] bg-[#d35400] mb-2 shrink-0 rounded-sm"></div>
+        <div 
+          className="w-full h-[3px] bg-[#d35400] mb-2 shrink-0 rounded-sm"
+          style={{ width: '100%', height: '3px', backgroundColor: '#d35400', marginBottom: '8px', borderRadius: '2px' }}
+        ></div>
 
         <div 
           className="flex flex-col gap-[3px] text-white text-xl font-bold tracking-wide w-full shrink-0 overflow-y-auto hide-scrollbar sm:pb-8"

@@ -47,7 +47,16 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
   return (
     <div 
       className={"flex flex-col rounded border transition-all duration-1000 " + (isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5') + " " + (isStarted ? 'opacity-40 grayscale' : '')}
-      style={{ display: 'flex', flexDirection: 'column' }}
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        backgroundColor: isHighlighted ? 'rgba(0, 85, 255, 0.15)' : 'transparent',
+        border: isHighlighted ? '1px solid rgba(0, 85, 255, 0.4)' : 'none',
+        borderRadius: '4px',
+        padding: isHighlighted ? '8px 12px' : '4px 12px',
+        margin: isHighlighted ? '4px 0' : '0',
+        boxShadow: isHighlighted ? '0 10px 15px -3px rgba(0, 0, 0, 0.3)' : 'none'
+      }}
     >
       <div 
         className="flex items-center justify-between w-full"
@@ -62,13 +71,25 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
            </span>
            
            {hNum && (
-             <span 
-               className={"flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
-               style={{ width: "max(24px, 5cqi)", height: "max(24px, 5cqi)", fontSize: "max(11px, 2.8cqi)", display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-             >
-               {hNum}
-             </span>
-           )}
+              <span 
+                className={"flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
+                style={{ 
+                  width: "max(24px, 5cqi)", 
+                  height: "max(24px, 5cqi)", 
+                  fontSize: "max(11px, 2.8cqi)", 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  backgroundColor: isHighlighted ? 'rgba(0, 85, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                  border: isHighlighted ? '1px solid rgba(179, 212, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.3)',
+                  color: isHighlighted ? '#b3d4ff' : 'white',
+                  flexShrink: 0
+                }}
+              >
+                {hNum}
+              </span>
+            )}
         </div>
 
         <div 
@@ -109,15 +130,38 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
             <div 
               key={idx} 
               className="bg-[#0055ff] border border-[#3377ff] shadow-md px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5 leading-none"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '2px 6px', marginRight: '8px' }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                padding: '2px 6px', 
+                marginRight: '8px',
+                backgroundColor: '#0055ff',
+                border: '1px solid #3377ff',
+                borderRadius: '3px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
             >
               <span 
                 className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  backgroundColor: 'white',
+                  color: '#0055ff',
+                  padding: '0 4px',
+                  borderRadius: '2px',
+                  fontWeight: '900',
+                  height: '14px'
+                }}
               >
                 {generateAbbreviation(badgeName)}
               </span>
-              <span className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]">
+              <span 
+                className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]"
+                style={{ color: 'white', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase' }}
+              >
                 {badgeName}
               </span>
             </div>
