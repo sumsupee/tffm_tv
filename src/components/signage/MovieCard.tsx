@@ -6,7 +6,9 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: `calc((((100vh - 120px - ${(rowArrayLength - 1) * 32}px) / ${rowArrayLength}) - ${80 + (group.showings.length * 55)}px) * 0.666)`
+        maxWidth: `calc((((100vh - 120px - ${(rowArrayLength - 1) * 32}px) / ${rowArrayLength}) - ${80 + (group.showings.length * 55)}px) * 0.666)`,
+        backgroundColor: 'transparent',
+        color: 'white'
       }}
     >
       <div 
@@ -31,7 +33,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
             <div>
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
-                style={{ fontSize: "max(1.4rem, 6cqi)" }}
+                style={{ fontSize: "max(1.4rem, 6cqi)", color: 'white' }}
               >
                 {group.Title}
               </h2>

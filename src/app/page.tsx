@@ -43,9 +43,11 @@ function ScaledAuxZone({ node }: { node: NonNullable<AppConfig['auxLayout']> }) 
   // Re-measure whenever container resizes OR node layout changes
   useEffect(() => {
     recalc();
-    const ro = new ResizeObserver(recalc);
-    if (containerRef.current) ro.observe(containerRef.current); // container only
-    return () => ro.disconnect();
+    if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
+      const ro = new ResizeObserver(recalc);
+      if (containerRef.current) ro.observe(containerRef.current); // container only
+      return () => ro.disconnect();
+    }
   }, [recalc, node]);
 
   return (
@@ -74,7 +76,8 @@ export default function Home() {
   const updateClock = () => {
     const now = new Date();
     let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const minsRaw = now.getMinutes();
+    const minutes = minsRaw < 10 ? "0" + minsRaw : String(minsRaw);
     const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12;
     setTimeStr(`${hours}:${minutes} ${ampm}`);
@@ -102,14 +105,22 @@ export default function Home() {
   const fetchData = async () => {
     try {
       // 8-second timeout — prevents Pi from hanging indefinitely if the server-side API is slow.
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8_000);
+      let controller: AbortController | null = null;
+      let timeoutId: any = null;
+      
+      if (typeof window !== 'undefined' && 'AbortController' in window) {
+        controller = new AbortController();
+        timeoutId = setTimeout(() => controller?.abort(), 8_000);
+      }
 
       let apiRes: Response;
       try {
-        apiRes = await fetch("/api/showings", { signal: controller.signal });
+        apiRes = await fetch("/api/showings", { 
+          signal: controller ? controller.signal : undefined,
+          cache: 'no-store' 
+        });
       } finally {
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
       }
 
       if (!apiRes.ok) throw new Error(`API error: showings=${apiRes.status}`);
@@ -249,7 +260,10 @@ export default function Home() {
   };
 
   return (
-    <main className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]">
+    <main 
+      className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]"
+      style={{ backgroundColor: '#0a0a0a', color: 'white' }}
+    >
       {/* Header matching the screenshot: small logo left, time right */}
       <header className="flex justify-between items-center mb-3 shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -257,6 +271,7 @@ export default function Home() {
           src="https://indy-systems.imgix.net/acawvcj8kswipsw2to0golg6x4ay?undefined"
           alt="Tasveer Logo"
           className="h-8 md:h-10 w-auto object-contain"
+          style={{ height: '40px', width: 'auto', maxWidth: '200px' }}
         />
         <div className="text-xl md:text-2xl font-medium text-white tracking-wide">
           {timeStr}
