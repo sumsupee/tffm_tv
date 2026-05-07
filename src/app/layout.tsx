@@ -35,12 +35,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    <html 
+      lang="en" 
+      className={inter.variable + " " + jetbrainsMono.variable + " h-full antialiased"}
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          body { font-family: 'Outfit', sans-serif !important; }
+          .circle-theater { border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        ` }} />
         <script dangerouslySetInnerHTML={{ __html: `
           window.onerror = function(msg, url, line, col, error) {
             var div = document.createElement('div');
@@ -56,10 +63,9 @@ export default function RootLayout({
             div.innerHTML = 'JS ERR: ' + msg + ' (line ' + line + ')<br>UA: ' + navigator.userAgent;
             document.body.appendChild(div);
           };
-          console.log('Legacy log: ' + navigator.userAgent);
         ` }} />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans" style={{ fontFamily: "'Outfit', sans-serif" }}>{children}</body>
     </html>
   );
 }

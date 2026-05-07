@@ -46,7 +46,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
 
   return (
     <div 
-      className={"flex flex-col rounded border transition-all duration-1000 " + (isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5') + " " + (isStarted ? 'opacity-40 grayscale' : '')}
+      className={"flex flex-col rounded border transition-all duration-1000 " + (isHighlighted ? 'bg-[#0055ff]/15 border-[#0055ff]/40 py-2 px-3 shadow-lg my-1' : 'border-transparent py-1 px-3 mb-0.5') + " " + (isStarted ? 'opacity-70 grayscale' : '')}
       style={{ 
         display: 'flex', 
         flexDirection: 'column',
@@ -55,7 +55,8 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
         borderRadius: '4px',
         padding: isHighlighted ? '8px 12px' : '4px 12px',
         margin: isHighlighted ? '4px 0' : '0',
-        boxShadow: isHighlighted ? '0 10px 15px -3px rgba(0, 0, 0, 0.3)' : 'none'
+        boxShadow: isHighlighted ? '0 10px 15px -3px rgba(0, 0, 0, 0.3)' : 'none',
+        opacity: isStarted ? 0.7 : 1
       }}
     >
       <div 
@@ -63,8 +64,8 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
         style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
       >
         <div 
-          className={"flex items-center gap-2 " + (isHighlighted ? 'text-[#b3d4ff]' : '')}
-          style={{ fontSize: "max(1.5rem, 6.5cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+          className={"flex items-center gap-3 " + (isHighlighted ? 'text-[#b3d4ff]' : '')}
+          style={{ fontSize: "max(2rem, 8cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center', fontWeight: '900' }}
         >
            <span className={isStarted ? 'line-through decoration-red-500/80 decoration-[3px]' : ''}>
              {formatTime(showing.FeatureStartTime)}
@@ -72,19 +73,21 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
            
            {hNum && (
               <span 
-                className={"flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
+                className={"circle-theater flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
                 style={{ 
-                  width: "max(24px, 5cqi)", 
-                  height: "max(24px, 5cqi)", 
-                  fontSize: "max(11px, 2.8cqi)", 
+                  width: "max(42px, 8cqi)", 
+                  height: "max(42px, 8cqi)", 
+                  fontSize: "max(18px, 4cqi)", 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   borderRadius: '50%',
                   backgroundColor: isHighlighted ? 'rgba(0, 85, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-                  border: isHighlighted ? '1px solid rgba(179, 212, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.3)',
+                  border: isHighlighted ? '2px solid rgba(179, 212, 255, 0.6)' : '2px solid rgba(255, 255, 255, 0.3)',
                   color: isHighlighted ? '#b3d4ff' : 'white',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  fontWeight: 'bold',
+                  marginLeft: '12px'
                 }}
               >
                 {hNum}

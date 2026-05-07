@@ -62,7 +62,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                   fontSize: "max(1.4rem, 6cqi)", 
                   color: 'white', 
                   fontWeight: 'bold', 
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 4px 10px rgba(0,0,0,0.5)',
                   wordWrap: 'break-word',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal'
