@@ -6,7 +6,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: "calc((((100vh - 120px - " + ((rowArrayLength - 1) * 32) + "px) / " + rowArrayLength + ") - " + (80 + (group.showings.length * 55)) + "px) * 0.666)",
+        maxWidth: "max(150px, calc((((100vh - 120px - " + ((rowArrayLength - 1) * 32) + "px) / " + rowArrayLength + ") - 150px) * 0.666))",
         backgroundColor: 'transparent',
         color: 'white',
         display: 'flex',
@@ -59,7 +59,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
                 style={{ 
-                  fontSize: "max(1.4rem, 6cqi)", 
+                  fontSize: "max(2rem, 8cqi)", 
                   color: 'white', 
                   fontWeight: 'bold', 
                   textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 4px 10px rgba(0,0,0,0.5)',
@@ -73,7 +73,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               {group.metaInfo && (
                 <p 
                   className="font-semibold tracking-wider text-white/90 drop-shadow-md mt-1"
-                  style={{ fontSize: "max(12px, 3cqi)" }}
+                  style={{ fontSize: "max(18px, 4cqi)" }}
                 >
                   {group.metaInfo}
                 </p>
@@ -84,11 +84,11 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                 <span 
                   className="bg-[#cc0000] text-white font-bold px-[6px] py-[2px] leading-none tracking-wider rounded-sm shadow-md"
                   style={{ 
-                    fontSize: "max(14px, 3.5cqi)", 
+                    fontSize: "max(18px, 4.5cqi)", 
                     backgroundColor: '#cc0000', 
                     color: 'white', 
                     fontWeight: 'bold', 
-                    padding: '2px 6px', 
+                    padding: '4px 8px', 
                     borderRadius: '2px',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                   }}
@@ -106,8 +106,8 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
         ></div>
 
         <div 
-          className="flex flex-col gap-[3px] text-white text-xl font-bold tracking-wide w-full shrink-0 overflow-y-auto hide-scrollbar sm:pb-8"
-          style={{ display: 'flex', flexDirection: 'column', width: '100%', color: 'white' }}
+          className="flex flex-col gap-[3px] text-white text-xl font-bold tracking-wide w-full flex-1 overflow-y-auto hide-scrollbar sm:pb-8"
+          style={{ display: 'flex', flexDirection: 'column', width: '100%', color: 'white', flex: '1 1 0%', minHeight: 0 }}
         >
           {group.showings.map((showing) => (
             <MovieShowing key={showing.Id} showing={showing} config={config} />

@@ -65,7 +65,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
       >
         <div 
           className={"flex items-center gap-3 " + (isHighlighted ? 'text-[#b3d4ff]' : '')}
-          style={{ fontSize: "max(2rem, 8cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center', fontWeight: '900' }}
+          style={{ fontSize: "max(2.4rem, 9cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center', fontWeight: '900' }}
         >
            <span className={isStarted ? 'line-through decoration-red-500/80 decoration-[3px]' : ''}>
              {formatTime(showing.FeatureStartTime)}
@@ -75,9 +75,9 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
               <span 
                 className={"circle-theater flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
                 style={{ 
-                  width: "max(42px, 8cqi)", 
-                  height: "max(42px, 8cqi)", 
-                  fontSize: "max(18px, 4cqi)", 
+                  width: "max(48px, 9cqi)", 
+                  height: "max(48px, 9cqi)", 
+                  fontSize: "max(22px, 4.5cqi)", 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
@@ -97,7 +97,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
 
         <div 
           className="flex items-center justify-end gap-[2px] opacity-90" 
-          style={{ fontSize: "max(18px, 4cqi)", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+          style={{ fontSize: "max(22px, 4.5cqi)", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
         >
            {(otherBadges || []).map((badgeName, idx) => {
                const iconComponent = getDynamicIconComponent(config, badgeName, idx);
@@ -114,7 +114,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
                   >
                    {iconComponent}
                    {displayText && (
-                     <span className="text-white shrink-0 ml-0.5 tracking-wide" style={{ fontSize: "max(10px, 2.5cqi)" }}>
+                     <span className="text-white shrink-0 ml-1 tracking-wide" style={{ fontSize: "max(14px, 3.5cqi)" }}>
                        {displayText}
                      </span>
                    )}
@@ -146,24 +146,24 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
               }}
             >
               <span 
-                className="bg-white text-[#0055ff] px-1 rounded-sm text-[10px] font-black h-[14px] leading-tight flex items-center justify-center shadow-inner tracking-tighter"
+                className="bg-white text-[#0055ff] px-2 rounded-sm text-[12px] font-black h-[18px] leading-tight flex items-center justify-center shadow-inner tracking-tighter"
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   backgroundColor: 'white',
                   color: '#0055ff',
-                  padding: '0 4px',
+                  padding: '0 6px',
                   borderRadius: '2px',
                   fontWeight: '900',
-                  height: '14px'
+                  height: '18px'
                 }}
               >
                 {generateAbbreviation(badgeName)}
               </span>
               <span 
-                className="text-[11px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]"
-                style={{ color: 'white', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase' }}
+                className="text-[13px] font-bold text-white uppercase tracking-wider drop-shadow-sm pt-[1px]"
+                style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', textTransform: 'uppercase' }}
               >
                 {badgeName}
               </span>

@@ -254,7 +254,7 @@ export default function Home() {
 
   // Helper func to split movies into balanced rows (max 4 per row) dynamically
   const chunkMovies = (groups: MovieGroup[]) => {
-    const maxPerRow = 4;
+    const maxPerRow = 6;
     if (groups.length <= maxPerRow) return [groups];
     
     const numRows = Math.ceil(groups.length / maxPerRow);
