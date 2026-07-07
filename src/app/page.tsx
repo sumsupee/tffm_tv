@@ -12,72 +12,6 @@ import MovieCard from "@/components/signage/MovieCard";
 import AuxRenderer from "@/components/signage/AuxRenderer";
 
 /**
- * Uniformly scales the entire interface to fit the screen while maintaining proportions.
- * This ensures the signage looks identical on a 4K TV, a 1080p monitor, or an old Raspberry Pi.
- */
-function ScreenScaler({ children }: { children: React.ReactNode }) {
-  const [scale, setScale] = useState(1);
-  const [isMounted, setIsMounted] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const updateScale = useCallback(() => {
-    if (!containerRef.current) return;
-    const ww = containerRef.current.clientWidth;
-    const wh = containerRef.current.clientHeight;
-    
-    if (ww === 0 || wh === 0) return;
-
-    const refW = 1920;
-    const refH = 1080;
-    
-    const s = Math.min(ww / refW, wh / refH);
-    setScale(s);
-  }, []);
-
-  useEffect(() => {
-    setIsMounted(true);
-    updateScale();
-    
-    const timeout = setTimeout(updateScale, 1000);
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener("resize", updateScale);
-      
-      let ro: ResizeObserver | null = null;
-      if ('ResizeObserver' in window && containerRef.current) {
-        ro = new ResizeObserver(updateScale);
-        ro.observe(containerRef.current);
-      }
-      
-      return () => {
-        clearTimeout(timeout);
-        window.removeEventListener("resize", updateScale);
-        if (ro) ro.disconnect();
-      };
-    }
-  }, [updateScale]);
-
-  return (
-    <div ref={containerRef} className="fixed inset-0 w-full h-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
-      <div
-        style={{
-          width: "1920px",
-          height: "1080px",
-          transform: "scale(" + scale + ")",
-          transformOrigin: "center",
-          flexShrink: 0,
-          opacity: isMounted ? 1 : 0,
-          transition: "opacity 0.3s ease-in-out"
-        }}
-        className="flex flex-col p-12"
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-/**
  * Squish-to-fit: scales content down uniformly so everything is visible.
  *
  * Why this doesn't infinite-loop:
@@ -340,7 +274,10 @@ export default function Home() {
   };
 
   return (
-    <ScreenScaler>
+    <main 
+      className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]"
+      style={{ backgroundColor: '#0a0a0a', color: 'white' }}
+    >
       {/* Debug Overlay — only shows on crash */}
       {debugError && (
         <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-900 text-white p-2 text-xs font-mono break-all opacity-80">
@@ -462,6 +399,6 @@ export default function Home() {
         )}
         
       </div>
-    </ScreenScaler>
+    </main>
   );
 }

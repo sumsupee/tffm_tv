@@ -6,7 +6,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: Math.max(150, ((932 / rowArrayLength) - 150) * 0.666) + "px",
+        maxWidth: "calc((((100vh - 120px) / " + rowArrayLength + ") - 120px) * 0.666)",
         backgroundColor: 'transparent',
         color: 'white',
         display: 'flex',
@@ -59,7 +59,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
                 style={{ 
-                  fontSize: "32px", 
+                  fontSize: "calc(16px + 1vw)", 
                   color: 'white', 
                   fontWeight: 'bold', 
                   textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 4px 10px rgba(0,0,0,0.5)',
@@ -73,7 +73,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               {group.metaInfo && (
                 <p 
                   className="font-semibold tracking-wider text-white/90 drop-shadow-md mt-1"
-                  style={{ fontSize: "20px" }}
+                  style={{ fontSize: "calc(12px + 0.5vw)" }}
                 >
                   {group.metaInfo}
                 </p>
@@ -84,7 +84,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                 <span 
                   className="bg-[#cc0000] text-white font-bold px-[6px] py-[2px] leading-none tracking-wider rounded-sm shadow-md"
                   style={{ 
-                    fontSize: "20px", 
+                    fontSize: "calc(12px + 0.5vw)", 
                     backgroundColor: '#cc0000', 
                     color: 'white', 
                     fontWeight: 'bold', 
