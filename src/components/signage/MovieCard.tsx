@@ -54,7 +54,18 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
             }}
           ></div>
 
-          <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
+          <div 
+            className="absolute bottom-4 left-4 right-4 flex flex-col gap-2"
+            style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '16px',
+              right: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}
+          >
             <div>
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
@@ -79,7 +90,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                {group.Rating && (
                 <span 
                   className="bg-[#cc0000] text-white font-bold px-[6px] py-[2px] leading-none tracking-wider rounded-sm shadow-md"
@@ -90,7 +101,8 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                     fontWeight: 'bold', 
                     padding: '4px 8px', 
                     borderRadius: '2px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                    display: 'inline-block'
                   }}
                 >
                   {group.Rating}
