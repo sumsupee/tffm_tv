@@ -18,11 +18,12 @@ import AuxRenderer from "@/components/signage/AuxRenderer";
 function ScreenScaler({ children }: { children: React.ReactNode }) {
   const [scale, setScale] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const updateScale = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    const ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    const wh = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    if (!containerRef.current) return;
+    const ww = containerRef.current.clientWidth;
+    const wh = containerRef.current.clientHeight;
     
     if (ww === 0 || wh === 0) return;
 
@@ -37,16 +38,15 @@ function ScreenScaler({ children }: { children: React.ReactNode }) {
     setIsMounted(true);
     updateScale();
     
-    // Catch delayed fullscreen transitions on Pi kiosk boot
     const timeout = setTimeout(updateScale, 1000);
 
     if (typeof window !== 'undefined') {
       window.addEventListener("resize", updateScale);
       
       let ro: ResizeObserver | null = null;
-      if ('ResizeObserver' in window && document.body) {
+      if ('ResizeObserver' in window && containerRef.current) {
         ro = new ResizeObserver(updateScale);
-        ro.observe(document.body);
+        ro.observe(containerRef.current);
       }
       
       return () => {
@@ -58,7 +58,7 @@ function ScreenScaler({ children }: { children: React.ReactNode }) {
   }, [updateScale]);
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="fixed inset-0 w-full h-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
       <div
         style={{
           width: "1920px",
