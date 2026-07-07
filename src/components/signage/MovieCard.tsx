@@ -22,11 +22,11 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
         style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
       >
         <div 
-          className="relative w-full aspect-[2/3] shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
+          className="relative w-full shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
           style={{ 
             position: 'relative', 
             width: '100%', 
-            height: 'auto', 
+            paddingBottom: '150%', /* 2:3 aspect ratio hack for legacy browsers */
             minHeight: '150px', 
             backgroundColor: '#050505', 
             marginBottom: '16px',
@@ -40,7 +40,17 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
           <img
             src={group.posterUrl}
             alt={group.Title}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center absolute inset-0"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              display: 'block'
+            }}
             onError={(e) => {
               (e.target as HTMLImageElement).src =
                 "https://via.placeholder.com/300x450/1f2833/66fcf1?text=No+Poster";
