@@ -345,7 +345,7 @@ export default function Home() {
             <div 
               key={rowIndex} 
               className="flex flex-1 flex-row justify-center gap-4 md:gap-8 w-full min-h-0 items-start"
-              style={{ display: 'flex', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minHeight: 0, gap: '2vw' }}
+              style={{ display: 'flex', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minHeight: 0, gap: '1vw' }}
             >
               {row.map((group) => (
                 <MovieCard key={group.FilmId} group={group} rowArrayLength={rowArray.length} config={config} />

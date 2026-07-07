@@ -6,7 +6,6 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: "calc((((100vh - 120px) / " + rowArrayLength + ") - 120px) * 0.666)",
         backgroundColor: 'transparent',
         color: 'white',
         display: 'flex',
@@ -19,15 +18,14 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     >
       <div 
         className="w-full flex flex-col"
-        style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+        style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center' }}
       >
         <div 
-          className="relative w-full shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
+          className="relative shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
           style={{ 
             position: 'relative', 
-            width: '100%', 
-            paddingBottom: '150%', /* 2:3 aspect ratio hack for legacy browsers */
-            minHeight: '150px', 
+            display: 'inline-flex',
+            flexDirection: 'column',
             backgroundColor: '#050505', 
             marginBottom: '16px',
             borderRadius: '4px',
@@ -40,15 +38,13 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
           <img
             src={group.posterUrl}
             alt={group.Title}
-            className="w-full h-full object-cover object-center absolute inset-0"
+            className="object-contain"
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
+              maxHeight: "calc(((100vh - 120px) / " + rowArrayLength + ") - 120px)",
+              maxWidth: '100%',
+              height: 'auto',
+              width: 'auto',
+              objectFit: 'contain',
               display: 'block'
             }}
             onError={(e) => {
