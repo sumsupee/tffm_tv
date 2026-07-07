@@ -42,7 +42,7 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
     return (
       <div
         className="flex flex-col w-full h-full"
-        style={nodeStyle(node)}
+        style={{ ...nodeStyle(node), display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
       >
         {(node.children || []).map(function(child) { return <AuxRenderer key={child.id} node={child} />; })}
       </div>
@@ -54,7 +54,7 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
     return (
       <div
         className={`flex w-full min-h-0 ${stacked ? 'flex-col' : 'flex-row'}`}
-        style={nodeStyle(node)}
+        style={{ ...nodeStyle(node), display: 'flex', flexDirection: stacked ? 'column' : 'row', width: '100%', minHeight: 0 }}
       >
         {(node.children || []).map(function(child) { return <AuxRenderer key={child.id} node={child} />; })}
       </div>
@@ -65,7 +65,7 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
     return (
       <div
         className="w-full text-white prose prose-invert prose-lg max-w-none break-words"
-        style={{ flex: node.flex !== undefined ? node.flex : 'none', padding: node.padding, margin: node.margin }}
+        style={{ flex: node.flex !== undefined ? node.flex : 'none', padding: node.padding, margin: node.margin, width: '100%', color: 'white', wordBreak: 'break-word', overflowWrap: 'break-word' }}
         dangerouslySetInnerHTML={{ __html: node.content || '' }}
       />
     );
@@ -80,6 +80,10 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
           margin: node.margin,
           minWidth: 0,
           overflow: 'hidden',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
         {node.content ? (
@@ -109,18 +113,22 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
     return (
       <div
         className="w-full overflow-hidden"
-        style={{ flex: node.flex !== undefined ? node.flex : 1, padding: node.padding, margin: node.margin, aspectRatio: '16/9' }}
+        style={{ flex: node.flex !== undefined ? node.flex : 1, padding: node.padding, margin: node.margin, aspectRatio: '16/9', width: '100%', overflow: 'hidden' }}
       >
         {embedUrl ? (
           <iframe
             src={embedUrl}
             className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
             frameBorder="0"
           />
         ) : (
-          <div className="w-full h-full border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center text-white/30 text-xs tracking-widest uppercase font-bold rounded-lg">
+          <div 
+            className="w-full h-full border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center text-white/30 text-xs tracking-widest uppercase font-bold rounded-lg"
+            style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontSize: '12px', border: '2px dashed rgba(255,255,255,0.2)' }}
+          >
             Paste YouTube URL
           </div>
         )}
@@ -132,15 +140,18 @@ export default function AuxRenderer({ node, scale }: { node?: AuxNode; scale?: s
     return (
       <div
         className="w-full border-t border-white/20 my-2"
-        style={{ flex: 'none', padding: node.padding, margin: node.margin }}
+        style={{ flex: 'none', padding: node.padding, margin: node.margin, width: '100%', borderTop: '1px solid rgba(255,255,255,0.2)', marginTop: '8px', marginBottom: '8px' }}
       />
     );
   }
 
   if (node.type === 'button') {
     return (
-      <div className="w-full flex justify-center py-2" style={{ flex: node.flex !== undefined ? node.flex : 'none', padding: node.padding, margin: node.margin }}>
-        <button className="bg-brand-accent text-black font-bold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform">
+      <div className="w-full flex justify-center py-2" style={{ flex: node.flex !== undefined ? node.flex : 'none', padding: node.padding, margin: node.margin, width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <button 
+          className="bg-brand-accent text-black font-bold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform"
+          style={{ backgroundColor: '#ff6600', color: 'black', fontWeight: 'bold', padding: '12px 32px', borderRadius: '9999px', border: 'none' }}
+        >
           {node.content || 'Click Here'}
         </button>
       </div>
