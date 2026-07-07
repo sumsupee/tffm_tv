@@ -314,10 +314,11 @@ export default function Home() {
         <div 
           className={"flex flex-col h-full shrink-0 transition-all duration-700 " + (((config && config.moviesColumnPercentage) || 100) < 100 ? 'pr-4 lg:pr-8' : '')}
           style={{ 
-            width: ((config && config.moviesColumnPercentage) || 100) + "%",
+            flex: ((config && config.moviesColumnPercentage) || 100),
             display: 'flex',
             flexDirection: 'column',
-            height: '100%'
+            height: '100%',
+            minWidth: 0
           }}
         >
           <section 
@@ -344,7 +345,7 @@ export default function Home() {
             <div 
               key={rowIndex} 
               className="flex flex-1 flex-row justify-center gap-4 md:gap-8 w-full min-h-0 items-start"
-              style={{ display: 'flex', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minHeight: 0 }}
+              style={{ display: 'flex', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minHeight: 0, gap: '2vw' }}
             >
               {row.map((group) => (
                 <MovieCard key={group.FilmId} group={group} rowArrayLength={rowArray.length} config={config} />
@@ -360,11 +361,13 @@ export default function Home() {
           <div 
             className="flex flex-col h-full shrink-0 transition-all duration-700 border-l border-white/5 bg-white/[0.02] relative"
             style={{ 
-              width: (100 - ((config && config.moviesColumnPercentage) || 100)) + "%",
+              flex: (100 - ((config && config.moviesColumnPercentage) || 100)),
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
-              borderLeft: '1px solid rgba(255,255,255,0.05)'
+              borderLeft: '1px solid rgba(255,255,255,0.05)',
+              minWidth: 0,
+              overflow: 'hidden'
             }}
           >
             {(config && config.auxLayout) ? (

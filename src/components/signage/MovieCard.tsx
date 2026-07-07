@@ -12,7 +12,9 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        margin: '0 10px'
+        margin: '0 10px',
+        flex: '1 1 0%',
+        minWidth: 0
       }}
     >
       <div 
