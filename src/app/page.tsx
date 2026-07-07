@@ -17,24 +17,43 @@ import AuxRenderer from "@/components/signage/AuxRenderer";
  */
 function ScreenScaler({ children }: { children: React.ReactNode }) {
   const [scale, setScale] = useState(1);
+  const [isMounted, setIsMounted] = useState(false);
 
   const updateScale = useCallback(() => {
     if (typeof window === 'undefined') return;
-    const ww = window.innerWidth;
-    const wh = window.innerHeight;
+    const ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    const wh = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    
+    if (ww === 0 || wh === 0) return;
+
     const refW = 1920;
     const refH = 1080;
     
-    // Scale to fit the dimension that hits the boundary first
     const s = Math.min(ww / refW, wh / refH);
     setScale(s);
   }, []);
 
   useEffect(() => {
+    setIsMounted(true);
     updateScale();
+    
+    // Catch delayed fullscreen transitions on Pi kiosk boot
+    const timeout = setTimeout(updateScale, 1000);
+
     if (typeof window !== 'undefined') {
       window.addEventListener("resize", updateScale);
-      return () => window.removeEventListener("resize", updateScale);
+      
+      let ro: ResizeObserver | null = null;
+      if ('ResizeObserver' in window && document.body) {
+        ro = new ResizeObserver(updateScale);
+        ro.observe(document.body);
+      }
+      
+      return () => {
+        clearTimeout(timeout);
+        window.removeEventListener("resize", updateScale);
+        if (ro) ro.disconnect();
+      };
     }
   }, [updateScale]);
 
@@ -47,6 +66,8 @@ function ScreenScaler({ children }: { children: React.ReactNode }) {
           transform: "scale(" + scale + ")",
           transformOrigin: "center",
           flexShrink: 0,
+          opacity: isMounted ? 1 : 0,
+          transition: "opacity 0.3s ease-in-out"
         }}
         className="flex flex-col p-12"
       >
