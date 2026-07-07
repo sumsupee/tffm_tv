@@ -12,6 +12,51 @@ import MovieCard from "@/components/signage/MovieCard";
 import AuxRenderer from "@/components/signage/AuxRenderer";
 
 /**
+ * Uniformly scales the entire interface to fit the screen while maintaining proportions.
+ * This ensures the signage looks identical on a 4K TV, a 1080p monitor, or an old Raspberry Pi.
+ */
+function ScreenScaler({ children }: { children: React.ReactNode }) {
+  const [scale, setScale] = useState(1);
+
+  const updateScale = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const ww = window.innerWidth;
+    const wh = window.innerHeight;
+    const refW = 1920;
+    const refH = 1080;
+    
+    // Scale to fit the dimension that hits the boundary first
+    const s = Math.min(ww / refW, wh / refH);
+    setScale(s);
+  }, []);
+
+  useEffect(() => {
+    updateScale();
+    if (typeof window !== 'undefined') {
+      window.addEventListener("resize", updateScale);
+      return () => window.removeEventListener("resize", updateScale);
+    }
+  }, [updateScale]);
+
+  return (
+    <div className="fixed inset-0 w-full h-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+      <div
+        style={{
+          width: "1920px",
+          height: "1080px",
+          transform: "scale(" + scale + ")",
+          transformOrigin: "center",
+          flexShrink: 0,
+        }}
+        className="flex flex-col p-12"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Squish-to-fit: scales content down uniformly so everything is visible.
  *
  * Why this doesn't infinite-loop:
@@ -274,10 +319,7 @@ export default function Home() {
   };
 
   return (
-    <main 
-      className="fixed inset-0 w-full h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[#0a0a0a]"
-      style={{ backgroundColor: '#0a0a0a', color: 'white' }}
-    >
+    <ScreenScaler>
       {/* Debug Overlay — only shows on crash */}
       {debugError && (
         <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-900 text-white p-2 text-xs font-mono break-all opacity-80">
@@ -399,6 +441,6 @@ export default function Home() {
         )}
         
       </div>
-    </main>
+    </ScreenScaler>
   );
 }

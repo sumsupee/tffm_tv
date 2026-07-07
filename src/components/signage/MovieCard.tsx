@@ -6,7 +6,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     <div 
       className="flex flex-col flex-[1_1_0px] h-full shrink-0 px-2 lg:px-4 items-center justify-start transition-all"
       style={{ 
-        maxWidth: "max(150px, calc((((100vh - 120px - " + ((rowArrayLength - 1) * 32) + "px) / " + rowArrayLength + ") - 150px) * 0.666))",
+        maxWidth: Math.max(150, ((932 / rowArrayLength) - 150) * 0.666) + "px",
         backgroundColor: 'transparent',
         color: 'white',
         display: 'flex',
@@ -17,7 +17,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
     >
       <div 
         className="w-full flex flex-col"
-        style={{ containerType: 'inline-size', display: 'flex', flexDirection: 'column', width: '100%' }}
+        style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
       >
         <div 
           className="relative w-full aspect-[2/3] shadow-lg bg-[#050505] mb-4 border border-white/10 shrink-0 overflow-hidden rounded shadow-black/50"
@@ -59,7 +59,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               <h2 
                 className="text-white font-bold leading-[1.1] text-shadow drop-shadow-xl"
                 style={{ 
-                  fontSize: "max(2rem, 8cqi)", 
+                  fontSize: "32px", 
                   color: 'white', 
                   fontWeight: 'bold', 
                   textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 4px 10px rgba(0,0,0,0.5)',
@@ -73,7 +73,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               {group.metaInfo && (
                 <p 
                   className="font-semibold tracking-wider text-white/90 drop-shadow-md mt-1"
-                  style={{ fontSize: "max(18px, 4cqi)" }}
+                  style={{ fontSize: "20px" }}
                 >
                   {group.metaInfo}
                 </p>
@@ -84,7 +84,7 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
                 <span 
                   className="bg-[#cc0000] text-white font-bold px-[6px] py-[2px] leading-none tracking-wider rounded-sm shadow-md"
                   style={{ 
-                    fontSize: "max(18px, 4.5cqi)", 
+                    fontSize: "20px", 
                     backgroundColor: '#cc0000', 
                     color: 'white', 
                     fontWeight: 'bold', 

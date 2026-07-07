@@ -65,7 +65,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
       >
         <div 
           className={"flex items-center gap-3 " + (isHighlighted ? 'text-[#b3d4ff]' : '')}
-          style={{ fontSize: "max(2.4rem, 9cqi)", display: 'flex', flexDirection: 'row', alignItems: 'center', fontWeight: '900' }}
+          style={{ fontSize: "38px", display: 'flex', flexDirection: 'row', alignItems: 'center', fontWeight: '900' }}
         >
            <span className={isStarted ? 'line-through decoration-red-500/80 decoration-[3px]' : ''}>
              {formatTime(showing.FeatureStartTime)}
@@ -75,9 +75,9 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
               <span 
                 className={"circle-theater flex items-center justify-center rounded-full border border-white/30 bg-white/10 shrink-0 " + (isHighlighted ? 'bg-[#0055ff]/30 text-[#b3d4ff] border-[#b3d4ff]/40' : '')}
                 style={{ 
-                  width: "max(48px, 9cqi)", 
-                  height: "max(48px, 9cqi)", 
-                  fontSize: "max(22px, 4.5cqi)", 
+                  width: "48px", 
+                  height: "48px", 
+                  fontSize: "22px", 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
@@ -97,7 +97,7 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
 
         <div 
           className="flex items-center justify-end gap-[2px] opacity-90" 
-          style={{ fontSize: "max(22px, 4.5cqi)", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+          style={{ fontSize: "22px", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
         >
            {(otherBadges || []).map((badgeName, idx) => {
                const iconComponent = getDynamicIconComponent(config, badgeName, idx);
@@ -114,11 +114,12 @@ export default function MovieShowing({ showing, config }: { showing: Showing, co
                   >
                    {iconComponent}
                    {displayText && (
-                     <span className="text-white shrink-0 ml-1 tracking-wide" style={{ fontSize: "max(14px, 3.5cqi)" }}>
+                     <span className="text-white shrink-0 ml-1 tracking-wide" style={{ fontSize: "14px" }}>
                        {displayText}
                      </span>
                    )}
                  </div>
+
                );
            })}
         </div>
