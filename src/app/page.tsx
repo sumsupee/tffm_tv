@@ -218,7 +218,24 @@ export default function Home() {
         );
       });
 
-      setMovieGroups(Array.from(groups.values()));
+      const now = new Date().getTime();
+      const getSortingTime = (group: MovieGroup) => {
+        // Find the first showing that hasn't been crossed out yet (cross out happens at 15 mins past start)
+        const upcoming = group.showings.find(s => {
+           const startTime = new Date(s.FeatureStartTime).getTime();
+           return (now - startTime) / 60000 < 15;
+        });
+        if (upcoming) {
+           return new Date(upcoming.FeatureStartTime).getTime();
+        }
+        // If all showings are crossed out, push this movie to the very end of the list
+        // by artificially adding a massive time buffer to its last showing time.
+        return new Date(group.showings[group.showings.length - 1].FeatureStartTime).getTime() + 8640000000;
+      };
+
+      const sortedGroups = Array.from(groups.values()).sort((a, b) => getSortingTime(a) - getSortingTime(b));
+
+      setMovieGroups(sortedGroups);
     } catch (error) {
       console.error("Failed to fetch data", error);
       // Failsafe: if the network completely drops on a kiosk, force a physical DOM reload after 15 seconds to try again
