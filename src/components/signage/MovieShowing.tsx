@@ -6,12 +6,12 @@ export const getDynamicIconComponent = (config: AppConfig | null, badgeName: str
    const cfgIcon = (config && config.badges && config.badges[badgeName]) ? config.badges[badgeName].iconName : null;
    if (cfgIcon && (LucideIcons as any)[cfgIcon]) {
        const Icon = (LucideIcons as any)[cfgIcon];
-       return <Icon key={idx + "-" + badgeName} size="1em" className="text-brand-accent shrink-0" aria-label={badgeName} />;
+       return <Icon key={idx + "-" + badgeName} size="1em" className="text-brand-accent shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#ff6600' }} />;
    }
    
-   if(badgeName.includes("Wheelchair")) return <LucideIcons.Accessibility key={`${idx}-${badgeName}`} size="1em" className="text-blue-400 shrink-0" aria-label={badgeName} />;
-   if(badgeName.includes("Stairs")) return <StairIcon key={`${idx}-${badgeName}`} size="1em" className="text-red-400 shrink-0" />;
-   if(badgeName.includes("Open Captions")) return <LucideIcons.Captions key={`${idx}-${badgeName}`} size="1em" className="text-green-400 shrink-0" aria-label={badgeName} />;
+   if(badgeName.includes("Wheelchair")) return <LucideIcons.Accessibility key={`${idx}-${badgeName}`} size="1em" className="text-blue-400 shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#60a5fa' }} />;
+   if(badgeName.includes("Stairs")) return <StairIcon key={`${idx}-${badgeName}`} size="1em" className="text-red-400 shrink-0" style={{ flexShrink: 0, color: '#f87171' }} />;
+   if(badgeName.includes("Open Captions")) return <LucideIcons.Captions key={`${idx}-${badgeName}`} size="1em" className="text-green-400 shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#4ade80' }} />;
    
    return null;
 };
