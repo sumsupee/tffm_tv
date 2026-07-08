@@ -107,6 +107,11 @@ export default function Home() {
        if(parts.length === 3) {
           today = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10)-1, parseInt(parts[2], 10));
        }
+    } else {
+       // After 9:30 PM, automatically switch to tomorrow's schedule
+       if (today.getHours() > 21 || (today.getHours() === 21 && today.getMinutes() >= 30)) {
+         today.setDate(today.getDate() + 1);
+       }
     }
 
     return (
