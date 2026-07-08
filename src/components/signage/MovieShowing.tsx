@@ -10,7 +10,7 @@ export const getDynamicIconComponent = (config: AppConfig | null, badgeName: str
    }
    
    if(badgeName.includes("Wheelchair")) return <LucideIcons.Accessibility key={`${idx}-${badgeName}`} size="1em" className="text-blue-400 shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#60a5fa' }} color="#60a5fa" />;
-   if(badgeName.includes("Stairs")) return <StairIcon key={`${idx}-${badgeName}`} size="1em" className="text-red-400 shrink-0" style={{ flexShrink: 0, color: '#f87171' }} color="#f87171" />;
+   if(badgeName.includes("Stairs")) return <LucideIcons.SignalHigh key={`${idx}-${badgeName}`} size="1em" className="text-red-400 shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#f87171' }} color="#f87171" />;
    if(badgeName.includes("Open Captions")) return <LucideIcons.Captions key={`${idx}-${badgeName}`} size="1em" className="text-green-400 shrink-0" aria-label={badgeName} style={{ flexShrink: 0, color: '#4ade80' }} color="#4ade80" />;
    
    return null;
