@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import LZString from 'lz-string';
 import type { AppConfig, Program } from '@/types/signage';
 import { DEFAULT_CONFIG } from '@/types/signage';
-import { FESTIVAL_TIMEZONE, festivalDate, festivalInstant, festivalTime } from '@/lib/signage-time';
+import { FESTIVAL_TIMEZONE, defaultDisplayDate, festivalDate, festivalInstant, festivalTime } from '@/lib/signage-time';
 import ProgramTimeline from '@/components/signage/ProgramTimeline';
 import ScaledAuxZone from '@/components/signage/ScaledAuxZone';
 import AuxRenderer from '@/components/signage/AuxRenderer';
@@ -55,12 +55,14 @@ export default function Home() {
     return () => { mounted = false; clearInterval(interval); controller?.abort(); };
   }, []);
 
-  const selectedDate = config.dateOverride || (clock ? festivalDate(new Date(clock)) : '');
+  const actualDate = clock ? festivalDate(new Date(clock)) : '';
+  const selectedDate = config.dateOverride || defaultDisplayDate(actualDate);
+  const tomorrowPreview = !config.dateOverride && selectedDate !== actualDate;
   const dayPrograms = useMemo(() => programs.filter(program => festivalDate(program.startTime) === selectedDate), [programs, selectedDate]);
-  const preview = Boolean(config.dateOverride && clock && selectedDate !== festivalDate(new Date(clock))) || Boolean(previewTime);
+  const preview = Boolean(clock && selectedDate !== actualDate) || Boolean(previewTime);
   const firstStart = dayPrograms[0] ? Date.parse(dayPrograms[0].startTime) - 15 * 60_000 : null;
   const simulatedStart = selectedDate && previewTime && /^([01]\d|2[0-3]):[0-5]\d$/.test(previewTime) ? festivalInstant(selectedDate, previewTime) : firstStart;
-  const displayNow = clock === null ? null : preview ? (simulatedStart ?? clock) + Math.max(0, clock - previewStarted) : clock;
+  const displayNow = clock === null ? null : tomorrowPreview && !previewTime ? clock + 24 * 60 * 60_000 : preview ? (simulatedStart ?? clock) + Math.max(0, clock - previewStarted) : clock;
   const movieShare = Math.min(100, Math.max(10, config.moviesColumnPercentage ?? 100));
   const dateLabel = selectedDate ? new Intl.DateTimeFormat('en-US', { timeZone: FESTIVAL_TIMEZONE, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(festivalInstant(selectedDate, '12:00'))) : '';
 
@@ -90,7 +92,7 @@ export default function Home() {
       <footer className="tv-footer">
         <span className={error ? 'tv-status tv-status-error' : 'tv-status'}>{error ? 'Update unavailable · retrying' : 'Eventive schedule · updates every minute'}</span>
         {preview && <label className="tv-preview-time">Preview time <input aria-label="Preview time" type="time" value={previewTime} onChange={event => { setPreviewTime(event.target.value); setPreviewStarted(Date.now()); }} /></label>}
-        <div>{preview && <button onClick={() => { setPreviewTime(''); changeDate(''); }}>Return to today</button>}<a href={'/settings#' + LZString.compressToBase64(JSON.stringify(config))}>Display settings ↗</a></div>
+        <div>{preview && <button onClick={() => { setPreviewTime(''); changeDate(actualDate); }}>Return to today</button>}<a href={'/settings#' + LZString.compressToBase64(JSON.stringify(config))}>Display settings ↗</a></div>
       </footer>
     </main>
   );

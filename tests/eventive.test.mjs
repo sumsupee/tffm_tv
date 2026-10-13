@@ -108,3 +108,12 @@ test('back-to-back programs share a lane', () => {
   const next = { ...program, id: 'next', startTime: program.endTime, endTime: '2026-10-14T06:00:00Z' };
   assert.deepEqual(programLanes([program, next], 6, 260).map(p => p.lane), [0, 0]);
 });
+
+const { defaultDisplayDate } = await import('../src/lib/signage-time.ts');
+
+test('October 12 previews October 13, then normal dates resume at midnight', () => {
+  assert.equal(defaultDisplayDate('2026-10-12'), '2026-10-13');
+  assert.equal(defaultDisplayDate('2026-10-13'), '2026-10-13');
+  assert.equal(defaultDisplayDate('2026-10-14'), '2026-10-14');
+  assert.equal(defaultDisplayDate(''), '');
+});

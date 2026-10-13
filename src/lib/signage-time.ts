@@ -1,5 +1,10 @@
 export const FESTIVAL_TIMEZONE = 'America/Los_Angeles';
 
+// One-day preview for setup before the festival. It expires at Seattle midnight.
+export function defaultDisplayDate(today: string): string {
+  return today === '2026-10-12' ? '2026-10-13' : today;
+}
+
 export function festivalDate(value: Date | string): string {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: FESTIVAL_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit',

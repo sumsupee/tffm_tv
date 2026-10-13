@@ -73,6 +73,7 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
                 const badges = config.sessionBadges?.[program.id] || [];
                 const clipped = Math.max(0, -left);
                 const readableWidth = Math.max(0, Math.min(cardWidth - clipped, width - Math.max(0, left)));
+                const filmColumns = program.films.length > 9 && readableWidth > 900 ? 4 : program.films.length > 6 && readableWidth > 720 ? 3 : program.films.length > 3 && readableWidth > 450 ? 2 : 1;
                 return <article key={program.id} className={'program-card' + (compact ? ' program-compact' : '') + (playing ? ' program-playing' : '') + (ended ? ' program-ended' : '')} style={{ left, width: cardWidth, top: `calc(${lane * 100 / row.lanes}% + ${inset}px)`, height: `calc(${100 / row.lanes}% - ${inset * 2}px)` }} aria-label={`${program.title}, ${program.house}, ${festivalTime(program.startTime)}`}>
                   <div className="program-card-body" style={{ marginLeft: clipped, width: readableWidth }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -80,8 +81,8 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
                     <div className="program-copy">
                       <div className="program-heading"><h2>{config.movies?.[program.id]?.title || program.title}</h2>{playing && <span className="program-live-badge">NOW SHOWING</span>}</div>
                       <div className="program-meta"><time>{festivalTime(program.startTime)} – {festivalTime(program.endTime)}</time><span>{program.house}</span>{badges.map(badge => <span key={badge} className="program-custom-badge">{config.badges?.[badge]?.label || badge}</span>)}</div>
-                      {program.films.length ? <ul className="program-films" style={{ gridTemplateColumns: `repeat(${program.films.length > 9 && readableWidth > 900 ? 4 : program.films.length > 6 && readableWidth > 720 ? 3 : program.films.length > 3 && readableWidth > 450 ? 2 : 1}, minmax(0, 1fr))` }}>
-                        {program.films.map(film => <li key={film.id}><span>{config.movies?.[film.id]?.title || film.title}</span>{film.runtime && <small>{film.runtime}m</small>}</li>)}
+                      {program.films.length ? <ul className="program-films">
+                        {program.films.map(film => <li key={film.id} style={{ width: `${100 / filmColumns}%` }}><span>{config.movies?.[film.id]?.title || film.title}</span>{film.runtime && <small>{film.runtime}m</small>}</li>)}
                       </ul> : <div className="program-session-label">FESTIVAL & MARKET SESSION</div>}
                     </div>
                   </div>
