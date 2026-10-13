@@ -14,6 +14,9 @@ export interface Program {
   endTime: string;
   image: string;
   films: ProgramFilm[];
+  attendeeCount: number | null;
+  totalQuantity: number | null;
+  unlimited: boolean;
 }
 
 export interface Showing {
@@ -59,6 +62,7 @@ export interface AuxNode {
 
 export interface AppConfig {
   dateOverride: string;
+  showAttendeeCount?: boolean;
   mockMoviesCount?: number;
   moviesColumnPercentage?: number;
   auxLayout?: AuxNode;

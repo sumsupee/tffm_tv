@@ -56,15 +56,25 @@ export default function Home() {
   }, []);
 
   const actualDate = clock ? festivalDate(new Date(clock)) : '';
-  const selectedDate = config.dateOverride || defaultDisplayDate(actualDate);
-  const tomorrowPreview = !config.dateOverride && selectedDate !== actualDate;
+  const availableDates = useMemo(() => [...new Set(programs.map(program => festivalDate(program.startTime)))].sort(), [programs]);
+  const requestedDate = config.dateOverride || defaultDisplayDate(actualDate);
+  const selectedDate = availableDates.length && !availableDates.includes(requestedDate)
+    ? availableDates.find(date => date >= requestedDate) || availableDates[availableDates.length - 1]
+    : requestedDate;
+  const tomorrowPreview = !config.dateOverride && selectedDate === defaultDisplayDate(actualDate) && selectedDate !== actualDate;
   const dayPrograms = useMemo(() => programs.filter(program => festivalDate(program.startTime) === selectedDate), [programs, selectedDate]);
   const preview = Boolean(clock && selectedDate !== actualDate) || Boolean(previewTime);
   const firstStart = dayPrograms[0] ? Date.parse(dayPrograms[0].startTime) - 15 * 60_000 : null;
   const simulatedStart = selectedDate && previewTime && /^([01]\d|2[0-3]):[0-5]\d$/.test(previewTime) ? festivalInstant(selectedDate, previewTime) : firstStart;
   const displayNow = clock === null ? null : tomorrowPreview && !previewTime ? clock + 24 * 60 * 60_000 : preview ? (simulatedStart ?? clock) + Math.max(0, clock - previewStarted) : clock;
   const movieShare = Math.min(100, Math.max(10, config.moviesColumnPercentage ?? 100));
-  const dateLabel = selectedDate ? new Intl.DateTimeFormat('en-US', { timeZone: FESTIVAL_TIMEZONE, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(festivalInstant(selectedDate, '12:00'))) : '';
+  const dateFormatter = new Intl.DateTimeFormat('en-US', { timeZone: FESTIVAL_TIMEZONE, weekday: 'short', month: 'short', day: 'numeric' });
+
+  function toggleAttendeeCount() {
+    const next = { ...config, showAttendeeCount: !config.showAttendeeCount };
+    setConfig(next);
+    window.history.replaceState(null, '', '#' + LZString.compressToBase64(JSON.stringify(next)));
+  }
 
   function changeDate(date: string) {
     const next = { ...config, dateOverride: date };
@@ -89,7 +99,10 @@ export default function Home() {
           </svg>
           <div className="tv-brand"><strong>TASVEER</strong><span>FILM FESTIVAL & MARKET <b>2026</b></span></div>
         </div>
-        <div className="tv-date"><span>{preview ? 'PREVIEW' : 'TODAY'}</span><label>{dateLabel}<input aria-label="Schedule date" type="date" value={selectedDate} onChange={event => changeDate(event.target.value)} /></label></div>
+        <div className="tv-date"><span>{preview ? 'PREVIEW' : 'TODAY'}</span><select aria-label="Schedule date" value={availableDates.length ? selectedDate : ''} disabled={!availableDates.length} onChange={event => changeDate(event.target.value)}>
+          {!availableDates.length && <option value="">{loading ? 'Loading dates…' : 'No available dates'}</option>}
+          {availableDates.map(date => <option key={date} value={date}>{dateFormatter.format(new Date(festivalInstant(date, '12:00')))}</option>)}
+        </select></div>
         <div className="tv-clock"><span>SEATTLE TIME</span><strong>{displayNow ? festivalTime(new Date(displayNow)) : '—'}</strong></div>
       </header>
       <div className="tv-content">
@@ -104,7 +117,7 @@ export default function Home() {
       <footer className="tv-footer">
         <span className={error ? 'tv-status tv-status-error' : 'tv-status'}>{error ? 'Update unavailable · retrying' : 'Eventive schedule · updates every minute'}</span>
         {preview && <label className="tv-preview-time">Preview time <input aria-label="Preview time" type="time" value={previewTime} onChange={event => { setPreviewTime(event.target.value); setPreviewStarted(Date.now()); }} /></label>}
-        <div>{preview && <button onClick={() => { setPreviewTime(''); changeDate(actualDate); }}>Return to today</button>}<a href={'/settings#' + LZString.compressToBase64(JSON.stringify(config))}>Display settings ↗</a></div>
+        <div>{preview && <button onClick={() => { setPreviewTime(''); changeDate(actualDate); }}>Return to today</button>}<button type="button" aria-pressed={Boolean(config.showAttendeeCount)} onClick={toggleAttendeeCount}>{config.showAttendeeCount ? 'Hide attendee count' : 'Show attendee count'}</button><a href={'/settings#' + LZString.compressToBase64(JSON.stringify(config))}>Display settings ↗</a></div>
       </footer>
     </main>
   );

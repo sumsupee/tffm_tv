@@ -27,7 +27,7 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
     return () => observer.disconnect();
   }, []);
 
-  const pixelsPerMinute = Math.max(12, width / 150);
+  const pixelsPerMinute = width / (3 * 60);
   const minimumWidth = 260;
   const bounds = timelineBounds(programs, now);
   const start = bounds.start - 30 * MINUTE;
@@ -75,8 +75,10 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
                 const badges = config.sessionBadges?.[program.id] || [];
                 const clipped = Math.max(0, -left);
                 const readableWidth = Math.max(0, Math.min(cardWidth - clipped, width - Math.max(0, left)));
+                const small = compact || width < 1000 || readableWidth < 350;
+                const tiny = width < 650 || readableWidth < 260;
                 const filmColumns = program.films.length > 9 && readableWidth > 900 ? 4 : program.films.length > 6 && readableWidth > 720 ? 3 : program.films.length > 3 && readableWidth > 450 ? 2 : 1;
-                return <article key={program.id} className={'program-card' + (compact ? ' program-compact' : '') + (playing ? ' program-playing' : '') + (ended ? ' program-ended' : '')} style={{ left, width: cardWidth, top: `calc(${lane * 100 / row.lanes}% + ${inset}px)`, height: `calc(${100 / row.lanes}% - ${inset * 2}px)` }} aria-label={`${program.title}, ${program.house}, ${festivalTime(program.startTime)}`}>
+                return <article key={program.id} className={'program-card' + (compact ? ' program-compact' : '') + (small ? ' program-small' : '') + (tiny ? ' program-tiny' : '') + (playing ? ' program-playing' : '') + (ended ? ' program-ended' : '')} style={{ left, width: cardWidth, top: `calc(${lane * 100 / row.lanes}% + ${inset}px)`, height: `calc(${100 / row.lanes}% - ${inset * 2}px)` }} aria-label={`${program.title}, ${program.house}, ${festivalTime(program.startTime)}`}>
                   <div className="program-card-body" style={{ marginLeft: clipped, width: readableWidth }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img className="program-image" src={program.image} alt={program.title} onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = '/poster-placeholder.svg'; }} />
@@ -87,6 +89,10 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
                         {program.films.map(film => <li key={film.id} style={{ width: `${100 / filmColumns}%` }}><span>{config.movies?.[film.id]?.title || film.title}</span>{film.runtime && <small>{film.runtime}m</small>}</li>)}
                       </ul> : <div className="program-session-label">FESTIVAL & MARKET SESSION</div>}
                     </div>
+                  </div>
+                  <div className="program-attendance" style={{ position: 'absolute', right: 10, bottom: 10, visibility: config.showAttendeeCount ? 'visible' : 'hidden' }} aria-hidden={!config.showAttendeeCount} aria-label={`${program.attendeeCount == null ? 'Unknown' : program.attendeeCount} attendees out of ${program.unlimited ? 'unlimited' : program.totalQuantity == null ? 'unknown' : program.totalQuantity} capacity`}>
+                    {program.attendeeCount == null ? '—' : program.attendeeCount.toLocaleString()}
+                    {' / '}{program.unlimited ? '∞' : program.totalQuantity == null ? '—' : program.totalQuantity.toLocaleString()}
                   </div>
                   <div className="program-duration-bar" style={{ width: Math.min(100, durationWidth / cardWidth * 100) + '%' }} />
                 </article>;

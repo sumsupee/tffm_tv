@@ -14,6 +14,10 @@ The server fetches Eventive events; the browser receives only display fields. Hi
 
 A date override previews that day's schedule. Use the preview-time control to see a particular point in the day; the preview clock advances from that time. `?previewTime=18:45` can be added before the URL fragment to link to a specific preview time.
 
+The timeline shows a three-hour window, scaled to the available display width.
+
+The header date dropdown lists only days with scheduled programs in the displayed rooms. If the requested day has no programs, it selects the next available day, or the last available day when the schedule has ended. "Show attendee count" beside Display settings toggles each program's booked ticket count and total ticket capacity as a fraction (for example, "80 / 100") at the bottom right of its card; these figures refresh with the schedule every minute. Attendance here means tickets booked, including reservations, rather than tickets scanned at the door. Unlimited capacity appears as ∞ and unavailable counts as —. The toggle is preserved in the display URL.
+
 ## Verification
 
 Run `node --experimental-strip-types --test tests/eventive.test.mjs` for mapping and timezone tests. Run `npm run build` for the production build.

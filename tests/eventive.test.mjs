@@ -67,6 +67,28 @@ test('one program contains its film list, event image and canonical house', () =
   assert.deepEqual(programs[0].films.map(film => film.title), ['Gaa Ghar (Home)', 'Second film']);
 });
 
+test('programs expose only aggregate attendance and capacity, preserving zero and unlimited', () => {
+  const [program] = eventivePrograms([{ ...screening, quantity_sold: 54, quantity: 185 }]);
+  assert.equal(program.attendeeCount, 54);
+  assert.equal(program.totalQuantity, 185);
+  assert.equal(program.unlimited, false);
+  assert.ok(!('internal_note' in program) && !('ticket_buckets' in program));
+  const [empty] = eventivePrograms([{ ...screening, quantity_sold: 0, quantity: 0 }]);
+  assert.equal(empty.attendeeCount, 0);
+  assert.equal(empty.totalQuantity, 0);
+  const [unlimited] = eventivePrograms([{ ...screening, quantity_sold: 10, unlimited: true }]);
+  assert.equal(unlimited.unlimited, true);
+  assert.equal(unlimited.totalQuantity, null);
+});
+
+test('missing or invalid counts remain unavailable rather than reporting zero attendees', () => {
+  for (const value of [undefined, null, -1, 1.5, '100', Infinity]) {
+    const [program] = eventivePrograms([{ ...screening, quantity_sold: value, quantity: value }]);
+    assert.equal(program.attendeeCount, null);
+    assert.equal(program.totalQuantity, null);
+  }
+});
+
 test('sessions require House 1–3 or Blue Room, including location fallbacks', () => {
   const events = [
     { ...screening, id: 'blue', films: [], venue: { name: 'Tasveer Blue Room' } },

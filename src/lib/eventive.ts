@@ -21,6 +21,9 @@ export interface EventiveEvent {
   venue?: { name?: string; short_name?: string };
   films?: EventiveFilm[];
   images?: { cover?: string; avatar?: string };
+  quantity_sold?: number;
+  quantity?: number;
+  unlimited?: boolean;
 }
 
 export function eventHouse(event: EventiveEvent): House | null {
@@ -55,6 +58,9 @@ export function eventivePrograms(events: EventiveEvent[]): Program[] {
       startTime: new Date(start).toISOString(), endTime: new Date(end).toISOString(),
       image: event.images?.cover || event.images?.avatar || films[0]?.cover_image || films[0]?.poster_image || '/poster-placeholder.svg',
       films: films.map(film => ({ id: film.id, title: film.name, runtime: film.details?.runtime })),
+      attendeeCount: Number.isSafeInteger(event.quantity_sold) && event.quantity_sold! >= 0 ? event.quantity_sold! : null,
+      totalQuantity: Number.isSafeInteger(event.quantity) && event.quantity! >= 0 ? event.quantity! : null,
+      unlimited: event.unlimited === true,
     });
   }
   return [...programs.values()].sort((a, b) => Date.parse(a.startTime) - Date.parse(b.startTime));

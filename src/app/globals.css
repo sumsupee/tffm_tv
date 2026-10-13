@@ -72,8 +72,9 @@ body {
 .tv-brand b { color: #ef9b54; margin-left: 7px; }
 .tv-date { display: flex; align-items: center;  font-size: calc(15px + 0.6vw); font-weight: 700; }
 .tv-date > span { color: #aeaea2; font-size: .7em; letter-spacing: .12em; }
-.tv-date label { position: relative; padding: 10px 20px; background: #eae7d9; color: #232c29; border-radius: 4px; cursor: pointer; }
-.tv-date input { position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0; width: 100%; cursor: pointer; }
+.tv-date select { appearance: none; -webkit-appearance: none; padding: 10px 44px 10px 20px; background-color: #eae7d9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23232c29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px 16px; color: #232c29; border: 0; border-radius: 4px; cursor: pointer; font: inherit; }
+.tv-date select:disabled { cursor: default; opacity: .7; }
+.tv-date select:focus-visible, .tv-footer button:focus-visible, .tv-footer a:focus-visible { outline: 2px solid #ef9b54; outline-offset: 4px; }
 .tv-clock { display: flex; flex-direction: column; align-items: flex-end; min-width: 180px; }
 .tv-clock > span { font-size: 11px; letter-spacing: .15em; color: #aeaea2; }
 .tv-clock strong { font-size: calc(25px + 1.15vw); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; }
@@ -113,6 +114,7 @@ body {
 .program-meta { display: flex;  flex-wrap: wrap; align-items: center; margin: 8px 0 10px; font-size: calc(12px + 0.45vw); font-weight: 700; color: #657167; line-height: 1.3; }
 .program-meta time { background: #eae9db; color: #344538; border-radius: 3px; padding: 2px 6px; white-space: nowrap; }
 .program-meta > span { white-space: nowrap; }
+.program-attendance { position: absolute; right: 10px; bottom: 10px; z-index: 1; padding: 2px 5px; border-radius: 3px; background: #f9f8ef; white-space: nowrap; font-size: calc(11px + 0.35vw); font-weight: 700; font-variant-numeric: tabular-nums; color: #344538; }
 .program-films { display: flex; flex-wrap: wrap; flex: 1 1 auto; min-height: 0;  align-content: flex-start; margin: 0; padding: 0; list-style: none; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #a9b3a5 transparent; }
 .program-films li { padding: 0 12px 4px 0; display: flex; justify-content: space-between; align-items: baseline;  font-size: calc(13px + 0.5vw); line-height: 1.3; color: #3d4b40; }
 .program-films li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--house-color); flex-shrink: 0; align-self: center; }
@@ -145,7 +147,7 @@ body {
   .tv-brand-logo { width: 56px; height: 56px; margin-right: 12px; }
   .timeline-label-column { width: 80px; }
   .tv-date {  }
-  .tv-date label { padding: 8px 12px; }
+  .tv-date select { padding: 8px 38px 8px 12px; background-position: right 12px center; }
   .tv-clock { min-width: 125px; }
   .program-image { width: 70px; }
   .program-live-badge { display: none; }
@@ -183,3 +185,22 @@ html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
   .tv-date { margin: 0 8px; }
   .tv-date > span { margin-right: 8px; }
 }
+
+/* Adapt to the space inside each card as well as the overall display size. */
+.program-small .program-card-body { padding: 6px; }
+.program-small .program-image { width: 52px; margin-right: 8px; }
+.program-small .program-heading h2 { font-size: 16px; line-height: 1.15; }
+.program-small .program-meta { font-size: 12px; margin: 4px 0; }
+.program-small .program-meta > * { margin-right: 6px; }
+.program-small .program-meta time { padding: 2px 4px; }
+.program-small .program-films li { font-size: 12px; line-height: 1.2; padding: 0 6px 3px 0; }
+.program-small .program-films li::before { margin-right: 5px; }
+.program-small .program-films small { margin-left: 4px; font-size: 10px; }
+.program-small .program-session-label { font-size: 10px; letter-spacing: .04em; }
+.program-small .program-live-badge { display: none; }
+.program-small .program-attendance { font-size: 12px; }
+.program-tiny .program-card-body { padding: 5px; }
+.program-tiny .program-image { width: 40px; margin-right: 6px; }
+.program-tiny .program-heading h2 { font-size: 14px; }
+.program-tiny .program-meta { font-size: 11px; margin: 3px 0; }
+.program-tiny .program-films li { font-size: 11px; }
