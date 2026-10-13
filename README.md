@@ -4,7 +4,7 @@ Eventive-powered TV signage for Tasveer Film Festival & Market 2026. Based on th
 
 ## Local setup
 
-Install dependencies with `npm ci`. Copy `.env.example` to `.env.local` if the local environment file is missing, then set `EVENTIVE_API_KEY` to your Eventive account key and `EVENTIVE_EVENT_BUCKET_ID` to the festival bucket ID. Never commit account credentials or use a `NEXT_PUBLIC_` prefix for the key.
+Install dependencies with `npm ci`. Copy `.env.example` to `.env.local` if the local environment file is missing, then set `EVENTIVE_API_KEY` to your Eventive account key and `EVENTIVE_EVENT_BUCKET_ID` to the festival bucket ID. Keep `.env.local` out of version control and the key server-side; do not use a `NEXT_PUBLIC_` prefix.
 
 Run `npm run dev` and open http://localhost:3000. Open http://localhost:3000/settings to configure the display. The settings page generates a TV URL containing its configuration in the URL fragment. Use the date override to preview October 13–18, 2026 before those dates arrive.
 
@@ -20,7 +20,7 @@ Run `node --experimental-strip-types --test tests/eventive.test.mjs` for mapping
 
 ## Vercel and Raspberry Pi
 
-Create a separate GitHub repository named `tffm-tv`; this checkout has no remote pointing to the original repository. Import the new repository into Vercel using the Next.js defaults. Set `EVENTIVE_API_KEY` and `EVENTIVE_EVENT_BUCKET_ID` in the Vercel project's environment variables before deploying. The account token must remain valid; update the environment variable and redeploy when it expires.
+This project is hosted in the separate `sumsupee/tffm_tv` GitHub repository. Import that repository into Vercel using the Next.js defaults. Set `EVENTIVE_API_KEY` and `EVENTIVE_EVENT_BUCKET_ID` in the Vercel project's environment variables before deploying. The account token must remain valid; update the environment variable and redeploy when it expires.
 
 On the Pi, open the generated TV URL in Chromium kiosk mode:
 
