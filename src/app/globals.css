@@ -65,9 +65,11 @@ body {
 .tv-display { position: fixed; top: 0; right: 0; bottom: 0; left: 0; width: auto; height: auto; padding: 22px 26px 12px; display: flex; flex-direction: column; background: #111310; color: #f4f1e7; }
 .tv-header { display: flex; align-items: center; justify-content: space-between;  padding: 0 4px 20px; flex-shrink: 0; }
 .tv-brand { display: flex; flex-direction: column; }
+.tv-brand-group { display: flex; align-items: center; flex-shrink: 0; }
+.tv-brand-logo { display: block; width: 88px; height: 88px; margin-right: 24px; background: transparent; flex-shrink: 0; }
 .tv-brand strong { font-size: calc(26px + 1.25vw); font-weight: 900; letter-spacing: .07em; line-height: 1; }
 .tv-brand > span { font-size: calc(10px + 0.4vw); letter-spacing: .11em; margin-top: 8px; color: #c7c6ba; }
-.tv-brand b { color: #eb9865; margin-left: 7px; }
+.tv-brand b { color: #ef9b54; margin-left: 7px; }
 .tv-date { display: flex; align-items: center;  font-size: calc(15px + 0.6vw); font-weight: 700; }
 .tv-date > span { color: #aeaea2; font-size: .7em; letter-spacing: .12em; }
 .tv-date label { position: relative; padding: 10px 20px; background: #eae7d9; color: #232c29; border-radius: 4px; cursor: pointer; }
@@ -90,7 +92,7 @@ body {
 .program-timeline { position: relative; flex: 1 1 0%; display: block; min-width: 0; min-height: 0; background: #edeadc; border: 1px solid #686b60; border-radius: 4px; color: #28342e; overflow: hidden; }
 .timeline-label-column { position: absolute; top: 0; bottom: 33px; left: 0; width: 116px; display: flex; flex-direction: column; background: #e5e2d3; border-right: 2px solid #7c8175; z-index: 6; }
 .timeline-label-heading { height: 45px; display: flex; align-items: center; justify-content: center; font-size: 11px; letter-spacing: .12em; border-bottom: 1px solid #9b9f91; flex-shrink: 0; color: #787b6f; }
-.timeline-house-label { display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #9b9f91; border-left: 5px solid var(--house-color); min-height: 0; }
+.timeline-house-label { display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #9b9f91; border-left: 5px solid var(--house-color); background: var(--house-tint); min-height: 0; }
 .timeline-house-label > span { font-size: calc(11px + 0.425vw); letter-spacing: .1em; color: #74796d; font-weight: 700; }
 .timeline-house-label strong { font-size: calc(40px + 2vw); font-weight: 500; line-height: 1.2; color: var(--house-color); }
 .timeline-house-label:last-child strong { font-size: calc(16px + 0.75vw); letter-spacing: .04em; }
@@ -99,8 +101,7 @@ body {
 .timeline-ruler { height: 45px; background: #e3e1d1; border-bottom: 1px solid #9b9f91; position: relative; z-index: 2; overflow: hidden; }
 .timeline-hour-label { position: absolute; top: 0; padding: 13px 10px; font-size: calc(13px + 0.475vw); font-weight: 700; white-space: nowrap; border-left: 1px solid #929887; height: 100%; }
 .timeline-rows { position: absolute; top: 45px; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; }
-.timeline-house-row { position: relative; min-height: 0; border-bottom: 1px solid #9b9f91; background: #eeecdf; }
-.timeline-house-row:nth-child(even) { background: #e8e7d9; }
+.timeline-house-row { position: relative; min-height: 0; border-bottom: 1px solid #9b9f91; background: var(--house-tint); }
 .timeline-gridline { position: absolute; top: 0; bottom: 0; border-left: 1px dashed #b6bbad; pointer-events: none; }
 .timeline-room-note { display: inline-block; margin: 14px 22px; color: #91968a; font-size: 14px; }
 .program-card { position: absolute; display: flex; flex-direction: column; border: 2px solid var(--house-color); background: #f9f8ef; box-shadow: 0 3px 8px rgba(40, 52, 46, 0.094); border-radius: 3px; overflow: hidden; transition: left 1s linear; }
@@ -133,6 +134,7 @@ body {
 .timeline-navigation button { min-width: 65px; color: #31523b; font-size: 10px; font-weight: 800; letter-spacing: .05em; cursor: pointer; }
 @media (max-height: 800px) {
   .tv-display { padding: 12px 18px 5px; }
+  .tv-brand-logo { width: 68px; height: 68px; margin-right: 18px; }
   .tv-header { padding-bottom: 12px; }
   .program-card-body { padding: 8px;  }
   .program-meta { margin: 5px 0 6px; }
@@ -140,6 +142,7 @@ body {
   .tv-footer { min-height: 32px; }
 }
 @media (max-width: 1000px) {
+  .tv-brand-logo { width: 56px; height: 56px; margin-right: 12px; }
   .timeline-label-column { width: 80px; }
   .tv-date {  }
   .tv-date label { padding: 8px 12px; }

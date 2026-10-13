@@ -76,7 +76,19 @@ export default function Home() {
   return (
     <main className="tv-display">
       <header className="tv-header">
-        <div className="tv-brand"><strong>TASVEER</strong><span>FILM FESTIVAL & MARKET <b>2026</b></span></div>
+        <div className="tv-brand-group">
+          <svg className="tv-brand-logo" viewBox="408 0 732 652" role="img" aria-label="Tasveer mascot logo">
+            <defs>
+              <clipPath id="tasveer-mascot">
+                <circle cx="744" cy="324" r="326" />
+                <rect x="1000" y="0" width="140" height="390" />
+                <path d="M990 430 L1138 500 L1138 550 L1000 550 Z" />
+              </clipPath>
+            </defs>
+            <image href="/tasveer-logo.png" xlinkHref="/tasveer-logo.png" width="1600" height="836" clipPath="url(#tasveer-mascot)" />
+          </svg>
+          <div className="tv-brand"><strong>TASVEER</strong><span>FILM FESTIVAL & MARKET <b>2026</b></span></div>
+        </div>
         <div className="tv-date"><span>{preview ? 'PREVIEW' : 'TODAY'}</span><label>{dateLabel}<input aria-label="Schedule date" type="date" value={selectedDate} onChange={event => changeDate(event.target.value)} /></label></div>
         <div className="tv-clock"><span>SEATTLE TIME</span><strong>{displayNow ? festivalTime(new Date(displayNow)) : '—'}</strong></div>
       </header>

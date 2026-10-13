@@ -6,7 +6,9 @@ import type { AppConfig, Program } from '@/types/signage';
 import { festivalTime } from '@/lib/signage-time';
 import { HOUSES, MINUTE, programLanes, timelineBounds, timelineOrigin } from '@/lib/timeline';
 
-const COLORS = ['#277f87', '#916331', '#675795', '#3674b8'];
+// Orange and gold echo the Tasveer mascot; warm red completes the house palette.
+const COLORS = ['#d9570d', '#a37b0b', '#b8422b', '#3674b8'];
+const TINTS = ['#fff0e4', '#fff6d6', '#fceae4', '#e8f0f8'];
 
 export default function ProgramTimeline({ programs, now, config }: { programs: Program[]; now: number; config: AppConfig }) {
   const viewport = useRef<HTMLDivElement>(null);
@@ -52,7 +54,7 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
     <div className="program-timeline">
       <div className="timeline-label-column">
         <div className="timeline-label-heading">VENUE</div>
-        {rows.map((row, index) => <div key={row.house} className={'timeline-house-label' + (!row.placements.length ? ' timeline-house-empty' : '')} style={{ flex: row.placements.length ? row.lanes : 0.35, '--house-color': COLORS[index] } as CSSProperties}>
+        {rows.map((row, index) => <div key={row.house} className={'timeline-house-label' + (!row.placements.length ? ' timeline-house-empty' : '')} style={{ flex: row.placements.length ? row.lanes : 0.35, '--house-color': COLORS[index], '--house-tint': TINTS[index] } as CSSProperties}>
           <span>{row.house === 'Blue Room' ? 'BLUE' : 'HOUSE'}</span><strong>{row.house === 'Blue Room' ? 'ROOM' : index + 1}</strong>
         </div>)}
       </div>
@@ -60,7 +62,7 @@ export default function ProgramTimeline({ programs, now, config }: { programs: P
         <div className="timeline-viewport" ref={viewport}>
           <div className="timeline-ruler">{ticks.map(time => <div key={time} className="timeline-hour-label" style={{ left: position(time) }}>{festivalTime(new Date(time))}</div>)}</div>
           <div className="timeline-rows">
-            {rows.map((row, index) => <div key={row.house} className="timeline-house-row" style={{ flex: row.placements.length ? row.lanes : 0.35, '--house-color': COLORS[index] } as CSSProperties}>
+            {rows.map((row, index) => <div key={row.house} className="timeline-house-row" style={{ flex: row.placements.length ? row.lanes : 0.35, '--house-color': COLORS[index], '--house-tint': TINTS[index] } as CSSProperties}>
               {ticks.map(time => <div key={time} className="timeline-gridline" style={{ left: position(time) }} />)}
               {!row.placements.length && <span className="timeline-room-note">No programs scheduled</span>}
               {row.placements.map(({ program, lane }) => {
