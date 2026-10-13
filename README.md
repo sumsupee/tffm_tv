@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TFFM TV
 
-## Getting Started
+Eventive-powered TV signage for Tasveer Film Festival & Market 2026. Based on the TFC TV display, with its settings, badge editor, and auxiliary content panel retained.
 
-First, run the development server:
+## Local setup
+
+Install dependencies with `npm ci`. Copy `.env.example` to `.env.local` if the local environment file is missing, then set `EVENTIVE_API_KEY` to your Eventive account key and `EVENTIVE_EVENT_BUCKET_ID` to the festival bucket ID. Never commit account credentials or use a `NEXT_PUBLIC_` prefix for the key.
+
+Run `npm run dev` and open http://localhost:3000. Open http://localhost:3000/settings to configure the display. The settings page generates a TV URL containing its configuration in the URL fragment. Use the date override to preview October 13–18, 2026 before those dates arrive.
+
+## Data behavior
+
+The server fetches Eventive events; the browser receives only display fields. Hidden, virtual, undated, and invalid events are excluded. The TV display uses one card per Eventive program, with its films listed beneath the program title. It includes only Houses 1–3 and the Blue Room, including non-film sessions in those rooms. All four venues share a horizontal time axis; a red line marks the current Seattle time and the timeline moves left continuously. Completed programs leave the viewport naturally. The whole day's schedule is available with the timeline slider; "Follow now" resumes automatic movement. Overlapping bookings stack within their venue. Program artwork comes from the event image when available, then the first film's image. Badges apply to the whole screening. The clock and schedule use America/Los_Angeles and stay on the selected calendar day through midnight.
+
+A date override previews that day's schedule. Use the preview-time control to see a particular point in the day; the preview clock advances from that time. `?previewTime=18:45` can be added before the URL fragment to link to a specific preview time.
+
+## Verification
+
+Run `node --experimental-strip-types --test tests/eventive.test.mjs` for mapping and timezone tests. Run `npm run build` for the production build.
+
+## Vercel and Raspberry Pi
+
+Create a separate GitHub repository named `tffm-tv`; this checkout has no remote pointing to the original repository. Import the new repository into Vercel using the Next.js defaults. Set `EVENTIVE_API_KEY` and `EVENTIVE_EVENT_BUCKET_ID` in the Vercel project's environment variables before deploying. The account token must remain valid; update the environment variable and redeploy when it expires.
+
+On the Pi, open the generated TV URL in Chromium kiosk mode:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+chromium --kiosk --noerrdialogs --disable-session-crashed-bubble 'https://YOUR-VERCEL-URL/#YOUR-CONFIGURATION'
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app runs on Vercel; the Raspberry Pi only runs the display browser. The copied HTML schedule is saved in `references/eventive-schedule.html` for reference and is not the live data source.

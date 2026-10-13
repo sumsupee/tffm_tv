@@ -1,18 +1,38 @@
+export type House = 'House 1' | 'House 2' | 'House 3' | 'Blue Room';
+
+export interface ProgramFilm {
+  id: string;
+  title: string;
+  runtime?: string;
+}
+
+export interface Program {
+  id: string;
+  title: string;
+  house: House;
+  startTime: string;
+  endTime: string;
+  image: string;
+  films: ProgramFilm[];
+}
+
 export interface Showing {
-  Id: number;
-  FilmId: number;
+  Id: string;
+  FilmId: string;
   Title: string;
   FilmTitle: string;
+  EventTitle?: string;
   Rating: string;
   ScreenName: string;
   FeatureStartTime: string;
   FeatureEndTime: string;
   ShowingBadges?: string[];
   ExtractedImgixUrl?: string | null;
+  MetaInfo?: string;
 }
 
 export interface MovieGroup {
-  FilmId: number;
+  FilmId: string;
   Title: string;
   metaInfo?: string | null;
   Rating: string;

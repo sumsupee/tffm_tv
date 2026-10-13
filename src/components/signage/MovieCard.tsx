@@ -48,8 +48,9 @@ export default function MovieCard({ group, config, rowArrayLength }: { group: Mo
               display: 'block'
             }}
             onError={(e) => {
+              e.currentTarget.onerror = null;
               (e.target as HTMLImageElement).src =
-                "https://via.placeholder.com/300x450/1f2833/66fcf1?text=No+Poster";
+                "/poster-placeholder.svg";
             }}
           />
 

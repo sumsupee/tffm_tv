@@ -6,6 +6,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { AppConfig, AuxNode } from "@/types/signage";
 import AuxiliaryEditor from "@/components/settings/AuxiliaryEditor";
 import LZString from "lz-string";
+import { FESTIVAL_TIMEZONE, festivalDate, festivalTime } from "@/lib/signage-time";
 
 const POPULAR_ICONS = ["Accessibility", "Activity", "AlertTriangle", "AudioLines", "Baby", "BadgeCheck", "Bell", "Calendar", "Camera", "Captions", "Check", "Clock", "Ear", "Eye", "Flame", "Heart", "Info", "Languages", "ListX", "MapPin", "Mic", "Monitor", "MonitorPlay", "Play", "Settings", "Shield", "Sparkles", "Star", "Subtitles", "Ticket", "Tv", "User", "Users", "Volume2", "Wheelchair"];
 
@@ -46,6 +47,7 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch("/api/showings")
       .then(async (apiRes) => {
+        if (!apiRes.ok) throw new Error("Unable to load the Eventive schedule.");
         const apiData = await apiRes.json();
         
         if (typeof window !== "undefined" && window.location.hash.length > 1) {
@@ -65,19 +67,21 @@ export default function SettingsPage() {
 
         const sessions = Array.isArray(apiData) ? apiData : apiData.sessions || [];
         const upcomingSessions = sessions.filter((s: any) => new Date(s.FeatureEndTime) > new Date());
-        setApiSessions(upcomingSessions);
+        setApiSessions(Array.from(new Map(upcomingSessions.map((s: any) => [s.Id, s])).values()));
         const fetchedMovies: Record<string, Movie> = {};
         sessions.forEach((s: any) => {
           if (!fetchedMovies[s.FilmId]) {
-            const titleMatch = s.Title.match(/^(.*?)\s*\(/);
-            const baseTitle = titleMatch ? titleMatch[1] : s.Title;
+            const baseTitle = s.Title;
             fetchedMovies[s.FilmId] = {
               title: baseTitle,
-              posterUrl: s.ExtractedImgixUrl || `https://signage-us.indy.systems/showings-poster/${s.FilmId}`
+              posterUrl: s.ExtractedImgixUrl || "/poster-placeholder.svg"
             };
           }
         });
         setApiMovies(fetchedMovies);
+        setLoading(false);
+      }).catch(() => {
+        toast.error("Unable to load the Eventive schedule. Please refresh to retry.");
         setLoading(false);
       });
   }, []);
@@ -92,7 +96,7 @@ export default function SettingsPage() {
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(generateSignageUrl());
-      toast.success("Tasveer Signage TV URL copied to clipboard!");
+      toast.success("TFFM TV URL copied to clipboard!");
     } catch {
       alert("Failed to copy directly. Please manually copy the URL from your browser address bar.");
     }
@@ -337,11 +341,11 @@ export default function SettingsPage() {
                 <div key={filmId} className="flex flex-col sm:flex-row gap-4 border border-white/20 p-4 rounded bg-white/5 transition hover:bg-white/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={userOverrides.posterUrl || defaultData.posterUrl || "https://via.placeholder.com/150x225/1f2833/66fcf1?text=No+Poster"}
+                    src={userOverrides.posterUrl || defaultData.posterUrl || "/poster-placeholder.svg"}
                     alt={userOverrides.title || defaultData.title}
                     className="w-24 h-36 object-cover rounded shadow-md shrink-0"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://via.placeholder.com/150x225/1f2833/66fcf1?text=No+Poster";
+                      (e.target as HTMLImageElement).src = "/poster-placeholder.svg";
                     }}
                   />
                   <div className="flex-1 flex flex-col justify-between">
@@ -517,31 +521,22 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {apiSessions.filter(session => {
               if (!badgeDateFilter) return true;
-              const sessionDate = new Date(session.FeatureStartTime);
-              const year = sessionDate.getFullYear();
-              const month = String(sessionDate.getMonth() + 1).padStart(2, "0");
-              const day = String(sessionDate.getDate()).padStart(2, "0");
-              const sessionDateString = `${year}-${month}-${day}`;
-              return sessionDateString === badgeDateFilter;
+              return festivalDate(session.FeatureStartTime) === badgeDateFilter;
             }).map(session => {
               const assignedBadges = config.sessionBadges[session.Id] || [];
               const availableGlobalBadges = Object.keys(config.badges);
               
               const formatDateTime = (iso: string) => {
-                const date = new Date(iso);
-                const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-                const dateStr = date.toLocaleDateString(undefined, options);
-                let hours = date.getHours();
-                const m = String(date.getMinutes()).padStart(2, "0");
-                const ampm = hours >= 12 ? "PM" : "AM";
-                hours = hours % 12 || 12;
-                return `${dateStr} • ${hours}:${m} ${ampm}`;
+                const dateStr = new Date(iso).toLocaleDateString('en-US', {
+                  timeZone: FESTIVAL_TIMEZONE, month: 'short', day: 'numeric',
+                });
+                return `${dateStr} • ${festivalTime(iso)}`;
               };
 
               return (
                 <div key={session.Id} className="border border-white/20 p-4 rounded bg-white/5 hover:bg-white/10 transition relative">
                   <div className="font-bold border-b border-white/10 pb-2 mb-3">
-                    <div className="text-lg">{apiMovies[session.FilmId]?.title || session.Title}</div>
+                    <div className="text-lg">{session.EventTitle || session.Title}</div>
                     <div className="flex items-center gap-2 mt-1">
                       {session.ScreenName && (
                         <span className="bg-white/10 text-white/90 border border-white/20 text-xs px-2 py-0.5 rounded-full shrink-0">

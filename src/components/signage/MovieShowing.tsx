@@ -1,5 +1,6 @@
 import * as LucideIcons from "lucide-react";
 import { StairIcon } from "./StairIcon";
+import { festivalTime } from "@/lib/signage-time";
 import { Showing, AppConfig } from "@/types/signage";
 
 export const getDynamicIconComponent = (config: AppConfig | null, badgeName: string, idx: number) => {
@@ -16,15 +17,7 @@ export const getDynamicIconComponent = (config: AppConfig | null, badgeName: str
    return null;
 };
 
-export const formatTime = (isoString: string) => {
-  const date = new Date(isoString);
-  let hours = date.getHours();
-  const minsRaw = date.getMinutes();
-  const minutes = minsRaw < 10 ? "0" + minsRaw : String(minsRaw);
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-  return hours + ":" + minutes + " " + ampm;
-};
+export const formatTime = (isoString: string) => festivalTime(isoString);
 
 export default function MovieShowing({ showing, config }: { showing: Showing, config: AppConfig | null }) {
   const match = showing.ScreenName.match(/\d+/);

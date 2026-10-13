@@ -15,8 +15,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tasveer Film Center — Signage",
-  description: "Digital signage display for Tasveer Film Center",
+  title: "TFFM 2026 — TV",
+  description: "Live Eventive schedule for Tasveer Film Festival & Market 2026",
 };
 
 // Ensures Chromium on Raspberry Pi renders at device resolution (1:1 scale)
